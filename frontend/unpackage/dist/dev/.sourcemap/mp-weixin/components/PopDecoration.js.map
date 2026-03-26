@@ -1,0 +1,1 @@
+{"version":3,"file":"PopDecoration.js","sources":["/Users/demean10/Desktop/测试题/Live/components/PopDecoration.vue?type=component"],"sourcesContent":["import Component from '/Users/demean10/Desktop/测试题/Live/components/PopDecoration.vue'\nwx.createComponent(Component)"],"names":[],"mappings":";;;;;;;AACA,GAAG,gBAAgB,SAAS;"}

@@ -1,0 +1,3862 @@
+
+.home-container {
+		height: 100vh;
+		background: #FFEB3B;
+		padding: 20rpx;
+		padding-top: 120rpx;
+		padding-bottom: 20rpx;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		overflow: hidden;
+}
+	
+	/* Pop Art 点状背景 */
+.home-container::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-image: radial-gradient(#000 10%, transparent 11%);
+		background-size: 30rpx 30rpx;
+		opacity: 0.08;
+		z-index: 0;
+		pointer-events: none;
+}
+
+	/* 票数进度条容器 - Pop Art 风格 */
+.vote-progress-container {
+		background: #FFF;
+		border: 6rpx solid #000;
+		padding: 16rpx;
+		margin-bottom: 8rpx;
+		box-shadow: 8rpx 8rpx 0 #000;
+		position: relative;
+		z-index: 1;
+		transition: all 0.3s ease;
+		flex-shrink: 0;
+}
+.vote-progress-container:hover {
+		box-shadow: 10rpx 10rpx 0 #000;
+		transform: translate(-2rpx, -2rpx);
+}
+
+	/* 票数进度条浮动覆盖层 */
+.vote-progress-overlay {
+		position: absolute;
+		top: 15rpx;
+		left: 20rpx;
+		right: 20rpx;
+		z-index: 9999; /* 提高层级，确保在B站播放器之上 */
+		pointer-events: none; /* 允许点击穿透到下层 */
+}
+
+	/* 直播区域 - Pop Art 风格 */
+.live-section {
+		background: #FFF;
+		border: 6rpx solid #000;
+		margin-bottom: 12rpx;
+		flex-shrink: 0;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		box-shadow: 8rpx 8rpx 0 #000;
+		position: relative;
+		z-index: 1;
+}
+.live-section:hover {
+		box-shadow: 10rpx 10rpx 0 #000;
+		transform: translate(-2rpx, -2rpx);
+}
+.live-section.collapsed {
+		height: 120rpx;
+}
+
+	/* 收起时隐藏但保留DOM - 视频继续在后台播放（关键优化）*/
+.live-section.collapsed-hide {
+		position: absolute;
+		left: -9999rpx;
+		width: 100%;
+		height: 100%;
+		visibility: hidden;
+		pointer-events: none;
+		opacity: 0;
+		z-index: -1;
+		/* 保持视频播放但不显示 */
+		display: flex;
+		flex-direction: column;
+}
+
+	/* 直播视频容器 */
+.live-video-container {
+		position: relative;
+		height: 400rpx;
+		background-color: #000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+}
+.live-video {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		background-color: #000;
+		overflow: hidden;
+}
+
+	/* 直播播放器样式 */
+.live-player {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: #000;
+}
+
+	/* 播放按钮 - 左下角 */
+.play-button {
+		position: absolute;
+		bottom: 20rpx;
+		left: 20rpx;
+		width: 80rpx;
+		height: 80rpx;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+		border: 3rpx solid rgba(255, 255, 255, 0.5);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 4rpx 15rpx rgba(0, 0, 0, 0.3), 0 0 0 1rpx rgba(255, 255, 255, 0.2);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: pointer;
+		-webkit-backdrop-filter: blur(10rpx);
+		        backdrop-filter: blur(10rpx);
+		z-index: 20;
+}
+.play-button:active {
+		transform: scale(0.95);
+		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.4), 0 0 0 1rpx rgba(255, 255, 255, 0.3);
+}
+.play-button:hover {
+		transform: scale(1.05);
+		box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.4), 0 0 0 2rpx rgba(255, 255, 255, 0.3);
+}
+.play-icon-img {
+		width: 60rpx;
+		height: 60rpx;
+		transition: transform 0.3s ease;
+}
+.play-button:active .play-icon-img {
+		transform: scale(0.9);
+}
+.live-status-overlay {
+		position: absolute;
+		top: 20rpx;
+		left: 20rpx;
+		background: rgba(0, 0, 0, 0.7);
+		padding: 10rpx 20rpx;
+		border-radius: 20rpx;
+		-webkit-backdrop-filter: blur(10rpx);
+		        backdrop-filter: blur(10rpx);
+}
+	
+	/* ==================== HLS 状态指示器样式 ==================== */
+.hls-status-indicator {
+		position: absolute;
+		bottom: 100rpx;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 100;
+		animation: hlsStatusSlideIn 0.3s ease-out;
+}
+@keyframes hlsStatusSlideIn {
+from {
+			opacity: 0;
+			transform: translateX(-50%) translateY(20rpx);
+}
+to {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0);
+}
+}
+.hls-status-text {
+		padding: 16rpx 32rpx;
+		border-radius: 40rpx;
+		font-size: 28rpx;
+		color: #fff;
+		-webkit-backdrop-filter: blur(20rpx);
+		        backdrop-filter: blur(20rpx);
+		box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+		white-space: nowrap;
+		font-weight: 500;
+		letter-spacing: 1rpx;
+}
+.hls-status-text.info {
+		background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
+		border: 2rpx solid rgba(147, 197, 253, 0.5);
+}
+.hls-status-text.success {
+		background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
+		border: 2rpx solid rgba(134, 239, 172, 0.5);
+}
+.hls-status-text.warning {
+		background: linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9));
+		border: 2rpx solid rgba(253, 224, 71, 0.5);
+}
+.hls-status-text.error {
+		background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+		border: 2rpx solid rgba(252, 165, 165, 0.5);
+}
+.live-ended-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.8);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		color: #FFFFFF;
+}
+.manual-controls {
+		margin-top: 30rpx;
+		display: flex;
+		justify-content: center;
+}
+.live-controls {
+		position: absolute;
+		top: 20rpx;
+		right: 20rpx;
+		display: flex;
+		gap: 10rpx;
+}
+.control-btn {
+		padding: 12rpx 24rpx;
+		border-radius: 25rpx;
+		-webkit-backdrop-filter: blur(10rpx);
+		        backdrop-filter: blur(10rpx);
+		border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+.start-btn {
+		background: rgba(0, 255, 0, 0.3);
+}
+.stop-btn {
+		background: rgba(255, 0, 0, 0.3);
+}
+.btn-text {
+		font-size: 24rpx;
+		color: #FFFFFF;
+		font-weight: bold;
+}
+.collapsed-live-indicator {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10rpx;
+		padding: 15rpx 25rpx;
+		background: #FF8C00;
+		border: 3rpx solid #000;
+		border-radius: 25rpx;
+		margin-bottom: 20rpx;
+		box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.3);
+}
+.live-dot {
+		font-size: 24rpx;
+		animation: pulse 2s infinite;
+}
+.live-text {
+		font-size: 28rpx;
+		color: #FFFFFF;
+		font-weight: bold;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.3);
+}
+.ended-icon {
+		font-size: 80rpx;
+		margin-bottom: 20rpx;
+}
+.ended-text {
+		font-size: 48rpx;
+		font-weight: bold;
+		margin-bottom: 10rpx;
+}
+.ended-subtitle {
+		font-size: 28rpx;
+		color: #CCCCCC;
+}
+.video-placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		color: #333333;
+		background: linear-gradient(135deg, #FFD4E5 0%, #E5D4FF 35%, #D4E5FF 70%, #D4FFF5 100%);
+		position: relative;
+		overflow: hidden;
+		border: 3rpx solid #999999;
+		box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.08), inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+}
+.video-placeholder::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%), radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+		pointer-events: none;
+		animation: shimmer 3s ease-in-out infinite;
+}
+.placeholder-icon {
+		font-size: 80rpx;
+		margin-bottom: 20rpx;
+		opacity: 0.85;
+		text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.1), 0 0 20rpx rgba(255, 255, 255, 0.3);
+		position: relative;
+		z-index: 1;
+		animation: popBounce 2s ease-in-out infinite;
+}
+.placeholder-text {
+		font-size: 32rpx;
+		font-weight: bold;
+		opacity: 0.9;
+		color: #666666;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.1), 0 0 10rpx rgba(255, 255, 255, 0.5);
+		position: relative;
+		z-index: 1;
+		letter-spacing: 3rpx;
+}
+.live-indicator {
+		font-size: 32rpx;
+		margin-bottom: 20rpx;
+		animation: pulse 2s infinite;
+}
+.video-text {
+		font-size: 28rpx;
+		color: #CCCCCC;
+}
+@keyframes pulse {
+0%, 100% { 
+			opacity: 1; 
+			transform: translateZ(0); /* GPU加速 */
+}
+50% { 
+			opacity: 0.5; 
+			transform: translateZ(0); /* GPU加速 */
+}
+}
+
+	/* 浮动返回按钮 - 整个页面左上角 */
+.back-btn-floating {
+		position: fixed;
+		top: 40rpx;
+		left: 30rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 48rpx;
+		height: 48rpx;
+		background: rgba(0, 0, 0, 0.6);
+		border: 2rpx solid rgba(255, 255, 255, 0.8);
+		border-radius: 8rpx;
+		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.4);
+		transition: all 0.3s ease;
+		cursor: pointer;
+		z-index: 9999; /* 确保在所有内容上方 */
+}
+.back-btn-floating:active {
+		transform: scale(0.92);
+		box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.3);
+}
+.back-btn-floating:hover {
+		transform: scale(1.05);
+		background: rgba(0, 0, 0, 0.75);
+		box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.5);
+}
+.back-icon {
+		font-size: 28rpx;
+		color: #ffffff;
+		font-weight: 700;
+		line-height: 1;
+}
+
+	/* 浮动收起按钮 - 右下角 */
+.collapse-btn-floating {
+		position: absolute;
+		bottom: 15rpx;
+		right: 15rpx;
+		width: 60rpx;
+		height: 60rpx;
+		background: radial-gradient(circle at 30% 30%, rgba(120, 119, 198, 0.9) 0%, transparent 50%), linear-gradient(135deg, rgba(120, 119, 198, 0.7), rgba(255, 119, 198, 0.5));
+		border: 2rpx solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3), 0 0 0 1rpx rgba(255, 255, 255, 0.2), inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: pointer;
+		-webkit-backdrop-filter: blur(10rpx);
+		        backdrop-filter: blur(10rpx);
+		z-index: 30;
+}
+
+	/* 切换视频源按钮 - 右上角 */
+.switch-video-btn {
+		position: absolute;
+		top: 15rpx;
+		right: 15rpx;
+		width: 60rpx;
+		height: 60rpx;
+		background: radial-gradient(circle at 70% 30%, rgba(120, 219, 255, 0.9) 0%, transparent 50%), linear-gradient(135deg, rgba(255, 119, 198, 0.7), rgba(120, 219, 255, 0.5));
+		border: 2rpx solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3), 0 0 0 1rpx rgba(255, 255, 255, 0.2), inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: pointer;
+		-webkit-backdrop-filter: blur(10rpx);
+		        backdrop-filter: blur(10rpx);
+		z-index: 30;
+}
+.switch-video-btn:active {
+		transform: scale(0.95);
+		box-shadow: 0 2rpx 8rpx rgba(255, 20, 147, 0.3), 0 0 0 1rpx rgba(255, 255, 255, 0.2);
+}
+.switch-video-btn:hover {
+		transform: scale(1.05);
+		box-shadow: 0 6rpx 20rpx rgba(255, 20, 147, 0.5), 0 0 0 2rpx rgba(255, 255, 255, 0.2);
+}
+.switch-icon {
+		font-size: 24rpx;
+		color: #FFFFFF;
+		text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+		transition: transform 0.3s ease;
+}
+.switch-video-btn:active .switch-icon {
+		transform: scale(0.9);
+}
+.collapse-btn-floating:active {
+		transform: scale(0.95);
+		box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3), 0 0 0 1rpx rgba(255, 255, 255, 0.2);
+}
+.collapse-btn-floating:hover {
+		transform: scale(1.05);
+		box-shadow: 0 6rpx 20rpx rgba(102, 126, 234, 0.5), 0 0 0 2rpx rgba(255, 255, 255, 0.2);
+}
+.collapse-icon-img {
+		width: 40rpx;
+		height: 40rpx;
+		transition: transform 0.3s ease;
+}
+.collapse-btn-floating:active .collapse-icon-img {
+		transform: scale(0.9);
+}
+
+	/* 票数进度条样式 */
+.progress-bar {
+		height: 40rpx;
+		background: transparent;
+		border: 4rpx solid #000;
+		border-radius: 8rpx;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		animation: none;
+		box-shadow: none;
+}
+@keyframes gradientShift {
+0% { 
+			background-position: 0% 50%; 
+			transform: translateZ(0);
+}
+50% { 
+			background-position: 100% 50%; 
+			transform: translateZ(0);
+}
+100% { 
+			background-position: 0% 50%; 
+			transform: translateZ(0);
+}
+}
+
+	/* 浮动覆盖层的进度条样式 */
+.vote-progress-overlay .progress-bar {
+		background: transparent;
+		border: 4rpx solid #000;
+		box-shadow: none;
+}
+.progress-fill {
+		height: 100%;
+		position: relative;
+		transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		overflow: hidden;
+		border-radius: 4rpx;
+}
+.left-fill {
+		background: #FF0000;
+		box-shadow: none;
+}
+.right-fill {
+		background: #0066FF;
+		box-shadow: none;
+}
+@keyframes leftPopBounce {
+0%, 100% { background-position: 0% 50%;
+}
+50% { background-position: 100% 50%;
+}
+}
+@keyframes rightPopBounce {
+0%, 100% { background-position: 100% 50%;
+}
+50% { background-position: 0% 50%;
+}
+}
+
+	/* 浮动覆盖层的进度条填充样式 */
+.vote-progress-overlay .left-fill {
+		background: #FF0000;
+		box-shadow: none;
+}
+.vote-progress-overlay .right-fill {
+		background: #0066FF;
+		box-shadow: none;
+}
+.progress-text {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding: 0 10rpx;
+		gap: 6rpx;
+}
+.left-text {
+		text-align: center;
+}
+.right-text {
+		text-align: center;
+}
+.debater-name {
+		display: none;
+}
+.vote-count {
+		font-size: 18rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.7);
+		animation: countPulse 2s ease-in-out infinite;
+}
+@keyframes countPulse {
+0%, 100% { transform: scale(1);
+}
+50% { transform: scale(1.1);
+}
+}
+
+
+	/* 动态火焰分界线 */
+.flame-divider {
+		display: none;
+}
+@keyframes dividerPulse {
+0%, 100% {
+			filter: drop-shadow(0 0 10rpx rgba(255, 0, 255, 0.6))
+			        drop-shadow(0 0 15rpx rgba(255, 69, 0, 0.3));
+}
+25% {
+			filter: drop-shadow(0 0 18rpx rgba(255, 0, 255, 0.8))
+			        drop-shadow(0 0 28rpx rgba(255, 69, 0, 0.5))
+			        drop-shadow(0 0 40rpx rgba(255, 100, 0, 0.3));
+}
+50% {
+			filter: drop-shadow(0 0 25rpx rgba(255, 0, 255, 1))
+			        drop-shadow(0 0 40rpx rgba(255, 69, 0, 0.8))
+			        drop-shadow(0 0 60rpx rgba(255, 100, 0, 0.5))
+			        drop-shadow(0 0 80rpx rgba(255, 200, 0, 0.3));
+}
+75% {
+			filter: drop-shadow(0 0 20rpx rgba(255, 0, 255, 0.85))
+			        drop-shadow(0 0 32rpx rgba(255, 69, 0, 0.6))
+			        drop-shadow(0 0 45rpx rgba(255, 100, 0, 0.4));
+}
+}
+
+	/* 分割线被击中的爆炸效果 */
+.flame-divider.divider-hit {
+		animation: dividerExplosion 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+@keyframes fireShake {
+0%, 100% { 
+			transform: translateZ(0) scale(1);
+}
+10%, 30%, 50%, 70%, 90% { 
+			transform: translateZ(0) scale(1.15) rotate(-2deg);
+}
+20%, 40%, 60%, 80% { 
+			transform: translateZ(0) scale(1.15) rotate(2deg);
+}
+}
+@keyframes dividerExplosion {
+0% {
+			filter: drop-shadow(0 0 12rpx rgba(255, 0, 255, 0.6))
+			        drop-shadow(0 0 18rpx rgba(255, 69, 0, 0.3));
+			transform: translate3d(-50%, -50%, 0) scale(1);
+}
+15% {
+			filter: drop-shadow(0 0 30rpx rgba(255, 0, 255, 0.95))
+			        drop-shadow(0 0 45rpx rgba(255, 69, 0, 0.85))
+			        drop-shadow(0 0 60rpx rgba(255, 100, 0, 0.6));
+			transform: translate3d(-50%, -50%, 0) scale(1.2);
+}
+35% {
+			filter: drop-shadow(0 0 40rpx rgba(255, 0, 255, 1))
+			        drop-shadow(0 0 60rpx rgba(255, 69, 0, 0.95))
+			        drop-shadow(0 0 80rpx rgba(255, 100, 0, 0.8))
+			        drop-shadow(0 0 100rpx rgba(255, 200, 0, 0.5));
+			transform: translate3d(-50%, -50%, 0) scale(1.35);
+}
+50% {
+			filter: drop-shadow(0 0 50rpx rgba(255, 0, 255, 1))
+			        drop-shadow(0 0 70rpx rgba(255, 69, 0, 1))
+			        drop-shadow(0 0 100rpx rgba(255, 100, 0, 0.9))
+			        drop-shadow(0 0 130rpx rgba(255, 200, 0, 0.6))
+			        drop-shadow(0 0 150rpx rgba(255, 150, 0, 0.3));
+			transform: translate3d(-50%, -50%, 0) scale(1.45);
+}
+75% {
+			filter: drop-shadow(0 0 35rpx rgba(255, 0, 255, 0.9))
+			        drop-shadow(0 0 50rpx rgba(255, 69, 0, 0.8))
+			        drop-shadow(0 0 70rpx rgba(255, 100, 0, 0.6));
+			transform: translate3d(-50%, -50%, 0) scale(1.2);
+}
+100% {
+			filter: drop-shadow(0 0 10rpx rgba(255, 0, 255, 0.6))
+			        drop-shadow(0 0 15rpx rgba(255, 69, 0, 0.3));
+			transform: translate3d(-50%, -50%, 0) scale(1);
+}
+}
+.flame-container {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-around;
+		animation: containerBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+@keyframes containerBounce {
+0%, 100% {
+			transform: scaleX(1) scaleY(0.95);
+}
+50% {
+			transform: scaleX(1.15) scaleY(1.1);
+}
+}
+.flame {
+		font-size: 28rpx;
+		animation: flamePopBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 15rpx rgba(255, 0, 255, 0.9))
+		        drop-shadow(0 0 25rpx rgba(255, 69, 0, 0.7))
+		        drop-shadow(0 0 35rpx rgba(255, 100, 0, 0.5));
+		text-shadow: 0 0 12rpx rgba(255, 255, 0, 0.8);
+		z-index: 2;
+}
+.flame-1 { animation-delay: 0s;
+}
+.flame-2 { animation-delay: 0.2s;
+}
+.flame-3 { animation-delay: 0.4s;
+}
+.flame-4 { animation-delay: 0.1s;
+}
+.flame-5 { animation-delay: 0.3s;
+}
+	
+	/* 侧边火焰样式 */
+.flame-side {
+		position: absolute;
+		font-size: 18rpx;
+		animation: flameSideBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 12rpx rgba(255, 0, 255, 0.8))
+		        drop-shadow(0 0 20rpx rgba(255, 69, 0, 0.6));
+		text-shadow: 0 0 10rpx rgba(255, 255, 0, 0.7);
+}
+.flame-left {
+		left: -15rpx;
+		top: 30%;
+		animation-delay: 0.15s;
+}
+.flame-right {
+		right: -15rpx;
+		top: 60%;
+		animation-delay: 0.35s;
+}
+@keyframes flameSideBounce {
+0%, 100% {
+			opacity: 0.7;
+			transform: scale(0.8) rotate(-10deg);
+}
+50% {
+			opacity: 1;
+			transform: scale(1.2) rotate(10deg);
+}
+}
+@keyframes flamePopBounce {
+0%, 100% {
+			opacity: 0.8;
+			transform: scale(0.9) rotate(-5deg);
+}
+50% {
+			opacity: 1;
+			transform: scale(1.3) rotate(5deg);
+}
+}
+.flame-glow {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		border-radius: 50%;
+		animation: flamePopGlow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+.flame-glow-1 {
+		width: 50rpx;
+		height: 80rpx;
+		background: radial-gradient(ellipse, rgba(255, 0, 255, 0.9) 0%, rgba(255, 69, 0, 0.6) 35%, transparent 75%);
+		box-shadow: 0 0 25rpx rgba(255, 0, 255, 1),
+		            0 0 50rpx rgba(255, 69, 0, 0.8),
+		            0 0 75rpx rgba(255, 100, 0, 0.6);
+		animation-delay: 0s;
+}
+.flame-glow-2 {
+		width: 35rpx;
+		height: 60rpx;
+		background: radial-gradient(ellipse, rgba(255, 100, 0, 0.8) 0%, rgba(255, 200, 0, 0.5) 40%, transparent 80%);
+		box-shadow: 0 0 20rpx rgba(255, 100, 0, 0.9),
+		            0 0 40rpx rgba(255, 200, 0, 0.7);
+		animation-delay: 0.2s;
+}
+.flame-glow-3 {
+		width: 25rpx;
+		height: 45rpx;
+		background: radial-gradient(ellipse, rgba(255, 255, 0, 0.7) 0%, rgba(255, 150, 0, 0.4) 50%, transparent 85%);
+		box-shadow: 0 0 15rpx rgba(255, 255, 0, 0.8),
+		            0 0 30rpx rgba(255, 150, 0, 0.6);
+		animation-delay: 0.4s;
+}
+@keyframes flamePopGlow {
+0%, 100% {
+			opacity: 0.5;
+			transform: translate(-50%, -50%) scale(0.7);
+}
+50% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.4);
+}
+}
+.flame-sparks {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+}
+.spark {
+		position: absolute;
+		font-size: 14rpx;
+		animation: sparkExplosion 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 6rpx rgba(255, 0, 255, 0.8));
+}
+.spark-1 {
+		top: 20%;
+		left: 50%;
+		animation-delay: 0s;
+}
+.spark-2 {
+		top: 40%;
+		left: 30%;
+		animation-delay: 0.2s;
+}
+.spark-3 {
+		top: 60%;
+		left: 70%;
+		animation-delay: 0.4s;
+}
+.spark-4 {
+		top: 80%;
+		left: 50%;
+		animation-delay: 0.1s;
+}
+.spark-5 {
+		top: 30%;
+		left: 70%;
+		animation-delay: 0.3s;
+}
+.spark-6 {
+		top: 70%;
+		left: 30%;
+		animation-delay: 0.5s;
+}
+@keyframes sparkExplosion {
+0%, 100% {
+			opacity: 0;
+			transform: translate(0, 0) scale(0);
+}
+30% {
+			opacity: 1;
+			transform: translate(0, -8rpx) scale(1.1);
+}
+60% {
+			opacity: 0.8;
+			transform: translate(0, -16rpx) scale(0.9);
+}
+100% {
+			opacity: 0;
+			transform: translate(0, -24rpx) scale(0);
+}
+}
+	
+	/* 中心大火焰团容器 - 单一集中火焰 - 全新设计 */
+.main-flame-container {
+		position: absolute;
+		top: 45%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100rpx;
+		height: 100rpx;
+		display: block;
+		animation: mainFlameBounce 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		z-index: 10;
+		pointer-events: none;
+}
+@keyframes mainFlameBounce {
+0%, 100% {
+			transform: translate(-50%, -50%) scale(1) rotate(0deg);
+}
+25% {
+			transform: translate(-50%, -50%) scale(1.15) rotate(-2deg);
+}
+50% {
+			transform: translate(-50%, -50%) scale(1.3) rotate(1deg);
+}
+75% {
+			transform: translate(-50%, -50%) scale(1.1) rotate(-1deg);
+}
+}
+
+	/* 中心大火焰 - 完全堆叠的单一火焰团 */
+.main-flame {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 48rpx;
+		animation: mainFlameFlicker 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 8rpx rgba(255, 0, 255, 0.9))
+		        drop-shadow(0 0 15rpx rgba(255, 69, 0, 0.7))
+		        drop-shadow(0 0 25rpx rgba(255, 100, 0, 0.5));
+		text-shadow: 0 0 8rpx rgba(255, 255, 0, 0.8),
+		            0 0 15rpx rgba(255, 150, 0, 0.6),
+		            0 0 22rpx rgba(255, 69, 0, 0.4);
+		z-index: 5;
+		line-height: 1;
+}
+
+	/* 火焰堆叠 - 都在中心点，通过透明度和缩放变化创造融合感 */
+.main-flame-1 {
+		animation-delay: 0s;
+		opacity: 0.85;
+		transform: translate(-50%, -50%) scale(1);
+}
+.main-flame-2 {
+		animation-delay: 0.08s;
+		opacity: 0.9;
+		transform: translate(-50%, -50%) scale(1.05);
+}
+.main-flame-3 {
+		animation-delay: 0.16s;
+		opacity: 0.95;
+		transform: translate(-50%, -50%) scale(1.1);
+}
+.main-flame-4 {
+		animation-delay: 0.24s;
+		opacity: 0.88;
+		transform: translate(-50%, -50%) scale(0.95);
+}
+.main-flame-5 {
+		animation-delay: 0.32s;
+		opacity: 0.92;
+		transform: translate(-50%, -50%) scale(1.08);
+}
+.main-flame-6 {
+		animation-delay: 0.4s;
+		opacity: 0.87;
+		transform: translate(-50%, -50%) scale(1.02);
+}
+@keyframes mainFlameFlicker {
+0%, 100% {
+			opacity: 0.85;
+			transform: scale(1) rotate(-3deg);
+}
+15% {
+			opacity: 1;
+			transform: scale(1.08) rotate(1.5deg);
+}
+30% {
+			opacity: 0.95;
+			transform: scale(1.15) rotate(-2deg);
+}
+45% {
+			opacity: 1;
+			transform: scale(1.22) rotate(2.5deg);
+}
+60% {
+			opacity: 0.9;
+			transform: scale(1.1) rotate(-1.5deg);
+}
+75% {
+			opacity: 0.98;
+			transform: scale(1.18) rotate(3deg);
+}
+}
+	
+	/* 大火焰发光效果 - 增强型 */
+.main-flame-glow {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		border-radius: 50%;
+		animation: mainFlameGlow 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+.main-glow-1 {
+		width: 60rpx;
+		height: 70rpx;
+		background: radial-gradient(ellipse, rgba(255, 0, 255, 0.8) 0%, rgba(255, 69, 0, 0.6) 30%, rgba(255, 100, 0, 0.3) 60%, transparent 80%);
+		box-shadow: 0 0 15rpx rgba(255, 0, 255, 0.8),
+		            0 0 25rpx rgba(255, 69, 0, 0.6),
+		            0 0 35rpx rgba(255, 100, 0, 0.4);
+		animation-delay: 0s;
+}
+.main-glow-2 {
+		width: 45rpx;
+		height: 55rpx;
+		background: radial-gradient(ellipse, rgba(255, 100, 0, 0.7) 0%, rgba(255, 200, 0, 0.5) 40%, transparent 80%);
+		box-shadow: 0 0 12rpx rgba(255, 100, 0, 0.8),
+		            0 0 20rpx rgba(255, 200, 0, 0.6),
+		            0 0 28rpx rgba(255, 150, 0, 0.4);
+		animation-delay: 0.15s;
+}
+.main-glow-3 {
+		width: 35rpx;
+		height: 45rpx;
+		background: radial-gradient(ellipse, rgba(255, 255, 0, 0.6) 0%, rgba(255, 150, 0, 0.4) 50%, transparent 85%);
+		box-shadow: 0 0 10rpx rgba(255, 255, 0, 0.7),
+		            0 0 18rpx rgba(255, 150, 0, 0.5),
+		            0 0 25rpx rgba(255, 100, 0, 0.3);
+		animation-delay: 0.3s;
+}
+@keyframes mainFlameGlow {
+0%, 100% {
+			opacity: 0.5;
+			transform: translate(-50%, -50%) scale(0.85);
+}
+25% {
+			opacity: 0.75;
+			transform: translate(-50%, -50%) scale(1.05);
+}
+50% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.4);
+}
+75% {
+			opacity: 0.8;
+			transform: translate(-50%, -50%) scale(1.15);
+}
+}
+	
+	/* 周围跳动的小火焰离子 */
+.flame-ions {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		overflow: visible;
+}
+.ion {
+		position: absolute;
+		font-size: 18rpx;
+		animation: ionBounce 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 10rpx rgba(255, 0, 255, 0.95))
+		        drop-shadow(0 0 18rpx rgba(255, 69, 0, 0.8))
+		        drop-shadow(0 0 25rpx rgba(255, 100, 0, 0.5));
+		text-shadow: 0 0 8rpx rgba(255, 255, 0, 0.9),
+		            0 0 15rpx rgba(255, 150, 0, 0.6);
+}
+	
+	/* 离子位置分布 - 完美圆形环绕，离中心较近 */
+	/* 上方 */
+.ion-1 { top: 8%; left: 50%; animation-delay: 0s;
+}
+	/* 右上 */
+.ion-2 { top: 15%; right: 15%; animation-delay: 0.15s;
+}
+	/* 右上方 */
+.ion-3 { top: 22%; right: 8%; animation-delay: 0.3s;
+}
+	/* 右方 */
+.ion-4 { top: 50%; right: 5%; animation-delay: 0.45s;
+}
+	/* 右下方 */
+.ion-5 { top: 72%; right: 8%; animation-delay: 0.6s;
+}
+	/* 右下 */
+.ion-6 { top: 80%; right: 15%; animation-delay: 0.75s;
+}
+	/* 下方 */
+.ion-7 { top: 88%; left: 50%; animation-delay: 0.9s;
+}
+	/* 左下 */
+.ion-8 { top: 80%; left: 15%; animation-delay: 0.2s;
+}
+	/* 左下方 */
+.ion-9 { top: 72%; left: 8%; animation-delay: 0.35s;
+}
+	/* 左方 */
+.ion-10 { top: 50%; left: 5%; animation-delay: 0.5s;
+}
+	/* 左上方 */
+.ion-11 { top: 22%; left: 8%; animation-delay: 0.65s;
+}
+	/* 左上 */
+.ion-12 { top: 15%; left: 15%; animation-delay: 0.8s;
+}
+	/* 额外粒子 - 在间隙位置 */
+.ion-13 { top: 12%; left: 35%; animation-delay: 0.25s;
+}
+.ion-14 { top: 12%; right: 35%; animation-delay: 0.4s;
+}
+.ion-15 { top: 30%; right: 20%; animation-delay: 0.55s;
+}
+.ion-16 { top: 68%; right: 20%; animation-delay: 0.7s;
+}
+.ion-17 { top: 84%; left: 35%; animation-delay: 0.1s;
+}
+.ion-18 { top: 84%; right: 35%; animation-delay: 0.85s;
+}
+.ion-19 { top: 30%; left: 20%; animation-delay: 0.32s;
+}
+.ion-20 { top: 68%; left: 20%; animation-delay: 0.62s;
+}
+@keyframes ionBounce {
+0%, 100% {
+			opacity: 0.4;
+			transform: translate(0, 0) scale(0.6) rotate(0deg);
+}
+25% {
+			opacity: 0.8;
+			transform: translate(-10rpx, -15rpx) scale(0.9) rotate(90deg);
+}
+50% {
+			opacity: 1;
+			transform: translate(10rpx, -25rpx) scale(1.15) rotate(180deg);
+}
+75% {
+			opacity: 0.75;
+			transform: translate(-8rpx, -35rpx) scale(0.85) rotate(270deg);
+}
+}
+
+
+	/* 展开按钮 */
+.expand-btn {
+		background: linear-gradient(135deg, #00FFFF, #00BFFF);
+		border: 2rpx solid #000;
+		border-radius: 15rpx;
+		padding: 8rpx 20rpx;
+		margin: 4rpx auto 8rpx auto;
+		width: -webkit-fit-content;
+		width: fit-content;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6rpx;
+		box-shadow: 0 2rpx 8rpx rgba(0, 255, 255, 0.3);
+		transition: all 0.3s ease;
+		flex-shrink: 0;
+}
+.expand-btn:active {
+		transform: scale(0.95);
+		box-shadow: 0 1rpx 4rpx rgba(0, 255, 255, 0.5);
+}
+.expand-icon-img {
+		width: 32rpx;
+		height: 32rpx;
+		margin-right: 8rpx;
+}
+.expand-text {
+		font-size: 22rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+
+	/* 主要内容区域 */
+.main-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		transition: all 0.3s ease;
+		min-height: 0; /* 让 flex 子元素能正确计算高度 */
+		overflow: hidden;
+}
+.main-content.expanded {
+		/* 当直播收起时，内容区域放大 */
+		margin-top: 0;
+}
+
+	/* AI对话区域 */
+.ai-chat-container {
+		background: #FFFFFF;
+		border: 6rpx solid #000;
+		border-radius: 12rpx;
+		margin-bottom: 8rpx;
+		overflow: hidden;
+		box-shadow: 12rpx 12rpx 0 #000;
+		flex: 1;
+		min-height: 200rpx;
+		display: flex;
+		flex-direction: column;
+		transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+		box-sizing: border-box;
+		width: 100%;
+		position: relative;
+}
+.ai-chat-container::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(135deg, rgba(255, 179, 209, 0.15) 0%, rgba(255, 107, 157, 0.1) 100%);
+		pointer-events: none;
+}
+.chat-header {
+		background: linear-gradient(135deg, #FF6B9D 0%, #FF1493 50%, #FFB6C1 100%);
+		padding: 20rpx 24rpx;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 2rpx solid rgba(255, 255, 255, 0.3);
+		flex-shrink: 0;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
+}
+.chat-header::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		animation: headerShimmer 3s infinite;
+}
+@keyframes headerShimmer {
+0% { left: -100%;
+}
+100% { left: 100%;
+}
+}
+.ai-icon {
+		display: flex;
+		align-items: center;
+}
+.ai-emoji {
+		font-size: 44rpx;
+		margin-right: 16rpx;
+		filter: drop-shadow(0 3rpx 6rpx rgba(255, 107, 157, 0.3));
+		position: relative;
+		z-index: 1;
+		animation: aiFloat 3s ease-in-out infinite;
+}
+@keyframes aiFloat {
+0%, 100% { transform: translateY(0);
+}
+50% { transform: translateY(-4rpx);
+}
+}
+.chat-title {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+		font-size: 34rpx;
+		font-weight: 700;
+		color: #FFFFFF;
+		flex: 1;
+		text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+		letter-spacing: 0.5rpx;
+		position: relative;
+		z-index: 1;
+}
+.status-indicator {
+		width: 24rpx;
+		height: 24rpx;
+		border-radius: 50%;
+		background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+		position: relative;
+		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+		z-index: 1;
+}
+.status-indicator.active {
+		background: linear-gradient(135deg, #FF1493, #FF6B9D);
+		animation: pulse 2s infinite;
+		box-shadow: 0 0 12rpx rgba(255, 107, 157, 0.5);
+}
+.status-dot {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		background-color: inherit;
+}
+@keyframes pulse {
+0% { opacity: 1;
+}
+50% { opacity: 0.5;
+}
+100% { opacity: 1;
+}
+}
+.chat-messages {
+		flex: 1;
+		padding: 16rpx 16rpx;
+		overflow-y: auto;
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		background: #FFFFFF;
+		position: relative;
+		z-index: 1;
+}
+.message-item {
+		margin-bottom: 8rpx;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		box-sizing: border-box;
+		animation: messageSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		position: relative;
+}
+.message-item.left {
+		align-items: flex-start;
+}
+.message-item.right {
+		align-items: flex-end;
+}
+.message-item.left .message-bubble-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		max-width: 80%;
+}
+.message-item.right .message-bubble-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		max-width: 80%;
+}
+@keyframes messageSlideIn {
+0% {
+			opacity: 0;
+			transform: translateY(20rpx);
+}
+100% {
+			opacity: 1;
+			transform: translateY(0);
+}
+}
+.message-item.left {
+		align-items: flex-start;
+}
+.message-item.right {
+		align-items: flex-end;
+}
+
+	/* 消息气泡包装器 */
+.message-bubble-wrapper {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		max-width: 85%;
+}
+.message-item.left .message-bubble-wrapper {
+		align-items: flex-start;
+}
+.message-item.right .message-bubble-wrapper {
+		align-items: flex-end;
+}
+
+	/* 正方/反方标识 */
+.side-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 8rpx;
+		padding: 12rpx 20rpx;
+		border-radius: 8rpx;
+		font-size: 26rpx;
+		font-weight: 900;
+		margin-bottom: 12rpx;
+		-webkit-backdrop-filter: none;
+		        backdrop-filter: none;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		white-space: nowrap;
+		border: 4rpx solid #000;
+		letter-spacing: 1rpx;
+		text-shadow: 2rpx 2rpx 0 #000;
+}
+.message-item.left .side-badge {
+		background: #FF0000;
+		color: #ffffff;
+		align-self: flex-start;
+		box-shadow: 6rpx 6rpx 0 #000;
+}
+.message-item.right .side-badge {
+		background: #0066FF;
+		color: #ffffff;
+		align-self: flex-end;
+		box-shadow: 6rpx 6rpx 0 #000;
+}
+.message-bubble {
+		width: 100%;
+		max-width: 100%;
+		padding: 16rpx 20rpx;
+		border-radius: 12rpx;
+		border: 4rpx solid #000;
+		position: relative;
+		transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+		box-sizing: border-box;
+		-webkit-backdrop-filter: none;
+		        backdrop-filter: none;
+}
+.message-item.left .message-bubble {
+		background: #FF0000;
+		box-shadow: 8rpx 8rpx 0 #000;
+		border-bottom-left-radius: 12rpx;
+}
+.message-item.right .message-bubble {
+		background: #0066FF;
+		box-shadow: 8rpx 8rpx 0 #000;
+		border-bottom-right-radius: 12rpx;
+}
+.message-bubble:hover {
+		transform: translate(0, 0);
+}
+.message-bubble:active {
+		transform: translate(2rpx, 2rpx);
+}
+.message-item.left .message-bubble:active {
+		box-shadow: 8rpx 8rpx 0 #FF0000;
+}
+.message-item.right .message-bubble:active {
+		box-shadow: 8rpx 8rpx 0 #0066FF;
+}
+.message-text {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans CN', sans-serif;
+		font-size: 28rpx;
+		line-height: 1.5;
+		color: #FFFFFF;
+		display: block;
+		margin-bottom: 12rpx;
+		word-wrap: break-word;
+		font-weight: 700;
+		letter-spacing: 0.2rpx;
+		text-shadow: 2rpx 2rpx 0 #000;
+}
+.message-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10rpx;
+}
+.action-item {
+		display: flex;
+		align-items: center;
+		padding: 8rpx 14rpx;
+		border-radius: 6rpx;
+		background: rgba(255, 255, 255, 0.95);
+		border: 3rpx solid #000;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		-webkit-backdrop-filter: none;
+		        backdrop-filter: none;
+		box-shadow: 4rpx 4rpx 0 #000;
+}
+.action-item:active {
+		transform: translate(2rpx, 2rpx);
+		box-shadow: 2rpx 2rpx 0 #000;
+}
+.action-item.liked {
+		background: #FFEB3B;
+		border-color: #000;
+		box-shadow: 4rpx 4rpx 0 #000;
+}
+.action-icon-img {
+		width: 20rpx;
+		height: 20rpx;
+		margin-right: 6rpx;
+		filter: none;
+}
+.action-count {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+		font-size: 24rpx;
+		font-weight: 800;
+		color: #000;
+		letter-spacing: 0.2rpx;
+}
+.action-item.liked .action-count {
+		color: #000;
+}
+.placeholder-message {
+		text-align: center;
+		color: #6c757d;
+		padding: 40rpx 24rpx;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(248, 249, 250, 0.8));
+		border-radius: 24rpx;
+		margin: 8rpx 12rpx;
+		-webkit-backdrop-filter: blur(8rpx);
+		        backdrop-filter: blur(8rpx);
+		border: 2rpx solid rgba(0, 0, 0, 0.04);
+}
+.placeholder-icon {
+		font-size: 60rpx;
+		display: block;
+		margin-bottom: 12rpx;
+		animation: bounce 2s infinite;
+		filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.1));
+}
+@keyframes bounce {
+0%, 20%, 50%, 80%, 100% { transform: translateY(0);
+}
+40% { transform: translateY(-12rpx);
+}
+60% { transform: translateY(-6rpx);
+}
+}
+.placeholder-content {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+		font-size: 34rpx;
+		font-weight: 600;
+		color: #495057;
+		display: block;
+		margin-bottom: 12rpx;
+		letter-spacing: 0.3rpx;
+}
+.placeholder-subtitle {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+		font-size: 28rpx;
+		color: #6c757d;
+		display: block;
+		font-weight: 400;
+		letter-spacing: 0.2rpx;
+		line-height: 1.5;
+}
+	/* 对抗条和投票区域 */
+.battle-section {
+		background-color: #FFFFFF !important;
+		background: #FFFFFF !important;
+		border: 6rpx solid #000;
+		border-radius: 30rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+		display: flex;
+		flex-direction: column;
+		opacity: 1 !important;
+		position: relative;
+		z-index: 10;
+}
+	/* 对抗条 */
+.battle-bar {
+		height: 60rpx;
+		background: transparent;
+		border: none;
+		border-radius: 12rpx;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		animation: none;
+		box-shadow: none;
+		margin-bottom: 8rpx;
+}
+.battle-fill {
+		height: 100%;
+		position: relative;
+		transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		overflow: hidden;
+		border-radius: 12rpx;
+		border: 4rpx solid #000;
+}
+.left-fill {
+		background: #FF0000;
+		animation: none;
+		box-shadow: none;
+}
+.right-fill {
+		background: #0066FF;
+		animation: none;
+		box-shadow: none;
+}
+.battle-text {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 4rpx;
+}
+.left-text {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: center;
+		gap: 4rpx;
+}
+.right-text {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		justify-content: center;
+		gap: 4rpx;
+}
+.battle-label {
+		display: none;
+}
+.battle-count {
+		font-size: 24rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.7);
+		animation: countPulse 2s ease-in-out infinite;
+}
+@keyframes countPulse {
+0%, 100% { transform: scale(1);
+}
+50% { transform: scale(1.1);
+}
+}
+
+	/* 动态闪电分界线 */
+.lightning-divider {
+		display: none;
+}
+@keyframes lightningPulse {
+0%, 100% {
+			filter: drop-shadow(0 0 8rpx rgba(255, 255, 0, 0.8))
+			        drop-shadow(0 0 15rpx rgba(255, 255, 255, 0.6));
+}
+50% {
+			filter: drop-shadow(0 0 15rpx rgba(255, 255, 0, 1))
+			        drop-shadow(0 0 25rpx rgba(255, 255, 255, 0.8))
+			        drop-shadow(0 0 35rpx rgba(0, 255, 255, 0.6));
+}
+}
+.lightning-container {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		animation: lightningBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+@keyframes lightningBounce {
+0%, 100% {
+			transform: scale(1) rotate(0deg);
+}
+25% {
+			transform: scale(1.1) rotate(-2deg);
+}
+50% {
+			transform: scale(1.2) rotate(2deg);
+}
+75% {
+			transform: scale(1.05) rotate(-1deg);
+}
+}
+.lightning {
+		font-size: 36rpx;
+		animation: lightningFlicker 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 10rpx rgba(255, 255, 0, 1))
+		        drop-shadow(0 0 20rpx rgba(255, 255, 255, 0.8))
+		        drop-shadow(0 0 30rpx rgba(0, 255, 255, 0.6));
+		text-shadow: 0 0 12rpx rgba(255, 255, 0, 1),
+		            0 0 20rpx rgba(255, 255, 255, 0.8),
+		            0 0 30rpx rgba(0, 255, 255, 0.6);
+		z-index: 5;
+}
+@keyframes lightningFlicker {
+0%, 100% {
+			opacity: 0.9;
+			transform: scale(1) rotate(0deg);
+}
+20% {
+			opacity: 1;
+			transform: scale(1.1) rotate(-1deg);
+}
+40% {
+			opacity: 0.8;
+			transform: scale(1.2) rotate(1deg);
+}
+60% {
+			opacity: 1;
+			transform: scale(1.15) rotate(-0.5deg);
+}
+80% {
+			opacity: 0.95;
+			transform: scale(1.05) rotate(0.5deg);
+}
+}
+.lightning-glow {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 50rpx;
+		height: 70rpx;
+		background: radial-gradient(ellipse, rgba(255, 255, 0, 0.8) 0%, rgba(255, 255, 255, 0.6) 30%, rgba(0, 255, 255, 0.4) 60%, transparent 80%);
+		border-radius: 50%;
+		animation: lightningGlow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		box-shadow: 0 0 20rpx rgba(255, 255, 0, 0.9),
+		            0 0 40rpx rgba(255, 255, 255, 0.7),
+		            0 0 60rpx rgba(0, 255, 255, 0.5);
+}
+@keyframes lightningGlow {
+0%, 100% {
+			opacity: 0.6;
+			transform: translate(-50%, -50%) scale(0.8);
+}
+50% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.3);
+}
+}
+.lightning-sparks {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		overflow: visible;
+}
+.lightning-sparks .spark {
+		position: absolute;
+		font-size: 12rpx;
+		animation: lightningSpark 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+		filter: drop-shadow(0 0 6rpx rgba(255, 255, 0, 0.9))
+		        drop-shadow(0 0 12rpx rgba(255, 255, 255, 0.7));
+		text-shadow: 0 0 8rpx rgba(255, 255, 0, 0.8);
+}
+.lightning-sparks .spark-1 {
+		top: 20%;
+		left: 50%;
+		animation-delay: 0s;
+}
+.lightning-sparks .spark-2 {
+		top: 50%;
+		left: 30%;
+		animation-delay: 0.4s;
+}
+.lightning-sparks .spark-3 {
+		top: 80%;
+		left: 70%;
+		animation-delay: 0.8s;
+}
+@keyframes lightningSpark {
+0%, 100% {
+			opacity: 0;
+			transform: translate(0, 0) scale(0);
+}
+30% {
+			opacity: 1;
+			transform: translate(-5rpx, -8rpx) scale(1.1);
+}
+60% {
+			opacity: 0.8;
+			transform: translate(5rpx, -15rpx) scale(0.9);
+}
+100% {
+			opacity: 0;
+			transform: translate(0, -25rpx) scale(0);
+}
+}
+.flame-container {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-around;
+		animation: containerBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+@keyframes containerBounce {
+0%, 100% {
+			transform: scaleX(1) scaleY(0.95);
+}
+50% {
+			transform: scaleX(1.15) scaleY(1.1);
+}
+}
+.flame {
+		font-size: 12rpx;
+		animation: flameFlicker 1s ease-in-out infinite alternate;
+		filter: drop-shadow(0 0 3rpx rgba(255, 69, 0, 0.6));
+}
+.flame-1 { animation-delay: 0s;
+}
+.flame-2 { animation-delay: 0.3s;
+}
+.flame-3 { animation-delay: 0.6s;
+}
+@keyframes flamePopBounce {
+0%, 100% {
+			opacity: 0.8;
+			transform: scale(0.9) rotate(-5deg);
+}
+50% {
+			opacity: 1;
+			transform: scale(1.3) rotate(5deg);
+}
+}
+.flame-glow {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 18rpx;
+		height: 36rpx;
+		background: radial-gradient(ellipse, rgba(255, 69, 0, 0.4) 0%, transparent 70%);
+		animation: flameGlow 1.5s ease-in-out infinite alternate;
+		border-radius: 50%;
+}
+@keyframes flameGlow {
+0% { 
+			opacity: 0.4; 
+			transform: translate(-50%, -50%) scale(1);
+}
+100% { 
+			opacity: 0.8; 
+			transform: translate(-50%, -50%) scale(1.1);
+}
+}
+.flame-sparks {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+}
+.spark {
+		position: absolute;
+		font-size: 8rpx;
+		animation: sparkFloat 2.5s ease-in-out infinite;
+}
+.spark-1 {
+		top: 30%;
+		left: 50%;
+		animation-delay: 0s;
+}
+.spark-2 {
+		top: 70%;
+		left: 30%;
+		animation-delay: 1.2s;
+}
+@keyframes sparkExplosion {
+0%, 100% {
+			opacity: 0;
+			transform: translate(0, 0) scale(0);
+}
+30% {
+			opacity: 1;
+			transform: translate(0, -8rpx) scale(1.1);
+}
+60% {
+			opacity: 0.8;
+			transform: translate(0, -16rpx) scale(0.9);
+}
+100% {
+			opacity: 0;
+			transform: translate(0, -24rpx) scale(0);
+}
+}
+
+	/* 投票按钮 */
+	/* 固定大小的投票区域容器 */
+.battle-section-fixed {
+		padding: 4rpx 20rpx 20rpx 20rpx;
+		background: transparent;
+		flex-shrink: 0;
+}
+.vote-buttons {
+		display: flex;
+		gap: 20rpx;
+		justify-content: center;
+		align-items: center;
+		margin-top: 8rpx;
+}
+
+	/* 投票按钮 */
+.vote-button {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		position: relative;
+		width: 100%;
+		padding: 18rpx 14rpx;
+		border: 4rpx solid #000;
+		box-shadow: 8rpx 8rpx 0 #000;
+		font-weight: 900;
+}
+
+	/* 正方按钮样式（红色背景） */
+.vote-button.left-button {
+		background: linear-gradient(135deg, #FF4444 0%, #FF0000 100%);
+}
+
+	/* 反方按钮样式（蓝色背景） */
+.vote-button.right-button {
+		background: linear-gradient(135deg, #4444FF 0%, #0000FF 100%);
+}
+.vote-button:hover {
+		transform: scale(1.08);
+		box-shadow: 12rpx 12rpx 0 #000;
+}
+.vote-button:active {
+		transform: scale(0.95);
+		box-shadow: 4rpx 4rpx 0 #000;
+}
+.vote-button.disabled {
+		opacity: 0.5;
+		pointer-events: none;
+		cursor: not-allowed;
+}
+.vote-button.voted {
+		transform: scale(1.1) rotate(2deg);
+		box-shadow: 12rpx 12rpx 0 #000;
+		filter: brightness(1.2);
+}
+.vote-button.voted.left-button {
+		background: linear-gradient(135deg, #FFAA00 0%, #FF7700 100%);
+		border-color: #FFF;
+}
+.vote-button.voted.right-button {
+		background: linear-gradient(135deg, #AAFF00 0%, #77FF00 100%);
+		border-color: #FFF;
+}
+.vote-button-text {
+		font-size: 28rpx;
+		font-weight: 900;
+		color: #FFF;
+		text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.5);
+		letter-spacing: 2rpx;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/* 正方按钮特殊特效（超级强化东倒西歪效果） */
+.left-btn.click-effect {
+		background: linear-gradient(135deg, #FF1493, #FF69B4, #FFB6C1, #FF1493);
+		background-size: 300% 300%;
+		animation: superLeftVoteEffect 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+				   superGradientShift 2.5s ease infinite,
+				   buttonShake 0.8s ease-in-out;
+		box-shadow: 
+			0 0 20rpx rgba(255, 20, 147, 0.6),
+			0 0 40rpx rgba(255, 20, 147, 0.4),
+			0 0 60rpx rgba(255, 20, 147, 0.2),
+			inset 0 2rpx 0 rgba(255, 255, 255, 0.3);
+		transform: translateZ(0);
+		position: relative;
+		overflow: hidden;
+}
+
+	/* 反方按钮特殊特效（超级强化东倒西歪效果） */
+.right-btn.click-effect {
+		background: linear-gradient(135deg, #00BFFF, #87CEEB, #B0E0E6, #00BFFF);
+		background-size: 300% 300%;
+		animation: superRightVoteEffect 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+				   superGradientShift 2.5s ease infinite,
+				   buttonShake 0.8s ease-in-out;
+		box-shadow: 
+			0 0 20rpx rgba(0, 191, 255, 0.6),
+			0 0 40rpx rgba(0, 191, 255, 0.4),
+			0 0 60rpx rgba(0, 191, 255, 0.2),
+			inset 0 2rpx 0 rgba(255, 255, 255, 0.3);
+		transform: translateZ(0);
+		position: relative;
+		overflow: hidden;
+}
+
+	/* 超级按钮摇晃动画 */
+@keyframes buttonShake {
+0%, 100% { transform: translateX(0) rotate(0deg);
+}
+10% { transform: translateX(-2rpx) rotate(-1deg);
+}
+20% { transform: translateX(2rpx) rotate(1deg);
+}
+30% { transform: translateX(-3rpx) rotate(-1.5deg);
+}
+40% { transform: translateX(3rpx) rotate(1.5deg);
+}
+50% { transform: translateX(-2rpx) rotate(-1deg);
+}
+60% { transform: translateX(2rpx) rotate(1deg);
+}
+70% { transform: translateX(-1rpx) rotate(-0.5deg);
+}
+80% { transform: translateX(1rpx) rotate(0.5deg);
+}
+90% { transform: translateX(-0.5rpx) rotate(-0.25deg);
+}
+}
+
+	/* 超级渐变移动动画 */
+@keyframes superGradientShift {
+0% { background-position: 0% 50%;
+}
+25% { background-position: 100% 50%;
+}
+50% { background-position: 100% 100%;
+}
+75% { background-position: 0% 100%;
+}
+100% { background-position: 0% 50%;
+}
+}
+
+	/* 超级正方按钮特效动画 */
+@keyframes superLeftVoteEffect {
+0% {
+			transform: scale(1) rotate(0deg) skewY(0deg) translateZ(0);
+			filter: brightness(1) saturate(1) hue-rotate(0deg);
+			box-shadow: 
+				0 0 20rpx rgba(255, 20, 147, 0.6),
+				0 0 40rpx rgba(255, 20, 147, 0.4),
+				0 0 60rpx rgba(255, 20, 147, 0.2);
+}
+15% {
+			transform: scale(1.15) rotate(-8deg) skewY(-3deg) translateZ(0);
+			filter: brightness(1.3) saturate(1.5) hue-rotate(10deg);
+			box-shadow: 
+				0 0 30rpx rgba(255, 20, 147, 0.8),
+				0 0 60rpx rgba(255, 20, 147, 0.6),
+				0 0 90rpx rgba(255, 20, 147, 0.4);
+}
+30% {
+			transform: scale(1.2) rotate(10deg) skewY(4deg) translateZ(0);
+			filter: brightness(1.4) saturate(1.8) hue-rotate(-15deg);
+			box-shadow: 
+				0 0 40rpx rgba(255, 20, 147, 1),
+				0 0 80rpx rgba(255, 20, 147, 0.8),
+				0 0 120rpx rgba(255, 20, 147, 0.6);
+}
+45% {
+			transform: scale(1.1) rotate(-6deg) skewY(-2deg) translateZ(0);
+			filter: brightness(1.2) saturate(1.3) hue-rotate(8deg);
+			box-shadow: 
+				0 0 25rpx rgba(255, 20, 147, 0.7),
+				0 0 50rpx rgba(255, 20, 147, 0.5),
+				0 0 75rpx rgba(255, 20, 147, 0.3);
+}
+60% {
+			transform: scale(1.05) rotate(4deg) skewY(1.5deg) translateZ(0);
+			filter: brightness(1.1) saturate(1.1) hue-rotate(-5deg);
+			box-shadow: 
+				0 0 20rpx rgba(255, 20, 147, 0.6),
+				0 0 40rpx rgba(255, 20, 147, 0.4),
+				0 0 60rpx rgba(255, 20, 147, 0.2);
+}
+75% {
+			transform: scale(1.02) rotate(-2deg) skewY(-0.5deg) translateZ(0);
+			filter: brightness(1.05) saturate(1.05) hue-rotate(2deg);
+			box-shadow: 
+				0 0 15rpx rgba(255, 20, 147, 0.5),
+				0 0 30rpx rgba(255, 20, 147, 0.3),
+				0 0 45rpx rgba(255, 20, 147, 0.1);
+}
+100% {
+			transform: scale(1) rotate(0deg) skewY(0deg) translateZ(0);
+			filter: brightness(1) saturate(1) hue-rotate(0deg);
+			box-shadow: 
+				0 0 20rpx rgba(255, 20, 147, 0.6),
+				0 0 40rpx rgba(255, 20, 147, 0.4),
+				0 0 60rpx rgba(255, 20, 147, 0.2);
+}
+}
+	/* 超级反方按钮特效动画 */
+@keyframes superRightVoteEffect {
+0% {
+			transform: scale(1) rotate(0deg) skewY(0deg) translateZ(0);
+			filter: brightness(1) saturate(1) hue-rotate(0deg);
+			box-shadow: 
+				0 0 20rpx rgba(0, 191, 255, 0.6),
+				0 0 40rpx rgba(0, 191, 255, 0.4),
+				0 0 60rpx rgba(0, 191, 255, 0.2);
+}
+15% {
+			transform: scale(1.15) rotate(8deg) skewY(3deg) translateZ(0);
+			filter: brightness(1.3) saturate(1.5) hue-rotate(-10deg);
+			box-shadow: 
+				0 0 30rpx rgba(0, 191, 255, 0.8),
+				0 0 60rpx rgba(0, 191, 255, 0.6),
+				0 0 90rpx rgba(0, 191, 255, 0.4);
+}
+30% {
+			transform: scale(1.2) rotate(-10deg) skewY(-4deg) translateZ(0);
+			filter: brightness(1.4) saturate(1.8) hue-rotate(15deg);
+			box-shadow: 
+				0 0 40rpx rgba(0, 191, 255, 1),
+				0 0 80rpx rgba(0, 191, 255, 0.8),
+				0 0 120rpx rgba(0, 191, 255, 0.6);
+}
+45% {
+			transform: scale(1.1) rotate(6deg) skewY(2deg) translateZ(0);
+			filter: brightness(1.2) saturate(1.3) hue-rotate(-8deg);
+			box-shadow: 
+				0 0 25rpx rgba(0, 191, 255, 0.7),
+				0 0 50rpx rgba(0, 191, 255, 0.5),
+				0 0 75rpx rgba(0, 191, 255, 0.3);
+}
+60% {
+			transform: scale(1.05) rotate(-4deg) skewY(-1.5deg) translateZ(0);
+			filter: brightness(1.1) saturate(1.1) hue-rotate(5deg);
+			box-shadow: 
+				0 0 20rpx rgba(0, 191, 255, 0.6),
+				0 0 40rpx rgba(0, 191, 255, 0.4),
+				0 0 60rpx rgba(0, 191, 255, 0.2);
+}
+75% {
+			transform: scale(1.02) rotate(2deg) skewY(0.5deg) translateZ(0);
+			filter: brightness(1.05) saturate(1.05) hue-rotate(-2deg);
+			box-shadow: 
+				0 0 15rpx rgba(0, 191, 255, 0.5),
+				0 0 30rpx rgba(0, 191, 255, 0.3),
+				0 0 45rpx rgba(0, 191, 255, 0.1);
+}
+100% {
+			transform: scale(1) rotate(0deg) skewY(0deg) translateZ(0);
+			filter: brightness(1) saturate(1) hue-rotate(0deg);
+			box-shadow: 
+				0 0 20rpx rgba(0, 191, 255, 0.6),
+				0 0 40rpx rgba(0, 191, 255, 0.4),
+				0 0 60rpx rgba(0, 191, 255, 0.2);
+}
+}
+@keyframes leftVoteEffectPro {
+0% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			filter: brightness(1) saturate(1);
+			box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.4);
+}
+10% {
+			transform: scale(1.15) rotate(-8deg) skewY(-2deg);
+			filter: brightness(1.3) saturate(1.4);
+			box-shadow: 0 12rpx 30rpx rgba(102, 126, 234, 0.6);
+}
+25% {
+			transform: scale(1.2) rotate(6deg) skewY(3deg);
+			filter: brightness(1.4) saturate(1.5);
+			box-shadow: 0 16rpx 40rpx rgba(102, 126, 234, 0.8);
+}
+40% {
+			transform: scale(1.12) rotate(-5deg) skewY(-2deg);
+			filter: brightness(1.25) saturate(1.3);
+			box-shadow: 0 12rpx 30rpx rgba(102, 126, 234, 0.6);
+}
+55% {
+			transform: scale(1.08) rotate(4deg) skewY(1.5deg);
+			filter: brightness(1.15) saturate(1.2);
+			box-shadow: 0 10rpx 24rpx rgba(102, 126, 234, 0.5);
+}
+70% {
+			transform: scale(1.04) rotate(-2deg) skewY(-1deg);
+			filter: brightness(1.08) saturate(1.1);
+			box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.4);
+}
+85% {
+			transform: scale(1.02) rotate(1deg) skewY(0.5deg);
+			filter: brightness(1.02) saturate(1.05);
+			box-shadow: 0 6rpx 16rpx rgba(102, 126, 234, 0.3);
+}
+100% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			filter: brightness(1) saturate(1);
+			box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.4);
+}
+}
+
+	/* 反方按钮特殊特效（强化东倒西歪效果） */
+.right-btn.click-effect {
+		background: linear-gradient(135deg, #f093fb, #f5576c, #ffb3d1);
+		background-size: 200% 200%;
+		animation: rightVoteEffectPro 1s cubic-bezier(0.68, -0.55, 0.265, 1.55), gradientShift 2s ease infinite;
+}
+@keyframes rightVoteEffectPro {
+0% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			filter: brightness(1) saturate(1);
+			box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.4);
+}
+10% {
+			transform: scale(1.15) rotate(8deg) skewY(2deg);
+			filter: brightness(1.3) saturate(1.4);
+			box-shadow: 0 12rpx 30rpx rgba(240, 147, 251, 0.6);
+}
+25% {
+			transform: scale(1.2) rotate(-6deg) skewY(-3deg);
+			filter: brightness(1.4) saturate(1.5);
+			box-shadow: 0 16rpx 40rpx rgba(240, 147, 251, 0.8);
+}
+40% {
+			transform: scale(1.12) rotate(5deg) skewY(2deg);
+			filter: brightness(1.25) saturate(1.3);
+			box-shadow: 0 12rpx 30rpx rgba(240, 147, 251, 0.6);
+}
+55% {
+			transform: scale(1.08) rotate(-4deg) skewY(-1.5deg);
+			filter: brightness(1.15) saturate(1.2);
+			box-shadow: 0 10rpx 24rpx rgba(240, 147, 251, 0.5);
+}
+70% {
+			transform: scale(1.04) rotate(2deg) skewY(1deg);
+			filter: brightness(1.08) saturate(1.1);
+			box-shadow: 0 8rpx 20rpx rgba(240, 147, 251, 0.4);
+}
+85% {
+			transform: scale(1.02) rotate(-1deg) skewY(-0.5deg);
+			filter: brightness(1.02) saturate(1.05);
+			box-shadow: 0 6rpx 16rpx rgba(240, 147, 251, 0.3);
+}
+100% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			filter: brightness(1) saturate(1);
+			box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.4);
+}
+}
+	/* 已投票按钮的特殊效果（强化版） */
+.vote-btn.voted.click-effect {
+		background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
+		background-size: 200% 200%;
+		animation: votedEffectPro 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), gradientShift 1.5s ease infinite;
+		box-shadow: 0 8rpx 20rpx rgba(255, 215, 0, 0.4);
+}
+@keyframes votedEffectPro {
+0% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			box-shadow: 0 8rpx 20rpx rgba(255, 215, 0, 0.4);
+			filter: brightness(1) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+}
+12% {
+			transform: scale(1.12) rotate(-6deg) skewY(-2deg);
+			box-shadow: 0 14rpx 28rpx rgba(255, 215, 0, 0.6);
+			filter: brightness(1.2) drop-shadow(0 0 15rpx rgba(255, 215, 0, 0.6));
+}
+25% {
+			transform: scale(1.15) rotate(7deg) skewY(3deg);
+			box-shadow: 0 18rpx 36rpx rgba(255, 215, 0, 0.7);
+			filter: brightness(1.3) drop-shadow(0 0 20rpx rgba(255, 215, 0, 0.8));
+}
+40% {
+			transform: scale(1.1) rotate(-4deg) skewY(-2deg);
+			box-shadow: 0 14rpx 28rpx rgba(255, 215, 0, 0.6);
+			filter: brightness(1.2) drop-shadow(0 0 15rpx rgba(255, 215, 0, 0.6));
+}
+55% {
+			transform: scale(1.08) rotate(3deg) skewY(1.5deg);
+			box-shadow: 0 12rpx 24rpx rgba(255, 215, 0, 0.5);
+			filter: brightness(1.1) drop-shadow(0 0 10rpx rgba(255, 215, 0, 0.4));
+}
+70% {
+			transform: scale(1.04) rotate(-2deg) skewY(-1deg);
+			box-shadow: 0 10rpx 20rpx rgba(255, 215, 0, 0.45);
+			filter: brightness(1.05) drop-shadow(0 0 5rpx rgba(255, 215, 0, 0.3));
+}
+85% {
+			transform: scale(1.02) rotate(1deg) skewY(0.5deg);
+			box-shadow: 0 9rpx 22rpx rgba(255, 215, 0, 0.4);
+			filter: brightness(1.02) drop-shadow(0 0 3rpx rgba(255, 215, 0, 0.2));
+}
+100% {
+			transform: scale(1) rotate(0deg) skewY(0deg);
+			box-shadow: 0 8rpx 20rpx rgba(255, 215, 0, 0.4);
+			filter: brightness(1) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+}
+}
+.vote-btn-icon {
+		font-size: 40rpx;
+}
+.vote-btn-text {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #000;
+		text-shadow: 1rpx 1rpx 2rpx rgba(255, 255, 255, 0.5);
+}
+
+	/* 底部导航栏 */
+
+	/* 自定义弹窗样式 */
+.custom-modal-mask {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.6);
+		z-index: 9998;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40rpx;
+		animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0;
+}
+to { opacity: 1;
+}
+}
+.custom-modal {
+		background: #FFF;
+		border: 6rpx solid #000;
+		border-radius: 0;
+		width: 100%;
+		max-width: 640rpx;
+		max-height: 85vh;
+		overflow: hidden;
+		box-shadow: 12rpx 12rpx 0 #000;
+		animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		transform: rotate(-1deg);
+}
+@keyframes slideUp {
+from { 
+			opacity: 0;
+			transform: translateY(100rpx) scale(0.9) rotate(-1deg);
+}
+to { 
+			opacity: 1;
+			transform: translateY(0) scale(1) rotate(-1deg);
+}
+}
+.modal-header {
+		background: linear-gradient(135deg, #1E90FF 0%, #00BFFF 100%);
+		padding: 32rpx 30rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-bottom: 5rpx solid #000000;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 0 6rpx 0 #000000;
+}
+.modal-title {
+		font-size: 38rpx;
+		font-weight: 700;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+		letter-spacing: 1rpx;
+		text-transform: uppercase;
+		position: relative;
+		z-index: 1;
+}
+.modal-content {
+		max-height: 60vh;
+		padding: 30rpx 24rpx;
+		background: #F5F5F5;
+		box-sizing: border-box;
+		width: 100%;
+}
+.summary-section {
+		margin-bottom: 28rpx;
+		background: linear-gradient(135deg, #FFEB3B 0%, #FFD700 100%);
+		border: 5rpx solid #000000;
+		border-radius: 0;
+		padding: 24rpx;
+		box-shadow: 6rpx 6rpx 0 #000000;
+		box-sizing: border-box;
+		width: 100%;
+		transform: rotate(1deg);
+}
+.comments-section {
+		margin-bottom: 0;
+		background: linear-gradient(135deg, rgba(255, 179, 209, 0.2) 0%, rgba(255, 107, 157, 0.1) 100%);
+		border: 5rpx solid #000000;
+		border-radius: 0;
+		padding: 24rpx;
+		box-shadow: 6rpx 6rpx 0 #000000;
+		box-sizing: border-box;
+		transform: rotate(-1deg);
+}
+.section-title {
+		display: flex;
+		align-items: center;
+		margin-bottom: 16rpx;
+		padding-bottom: 12rpx;
+		border-bottom: 4rpx solid #000000;
+}
+.comments-section .section-title {
+		border-bottom: 4rpx solid #000000;
+}
+.comments-section .title-text {
+		color: #000000;
+		text-shadow: none;
+}
+.title-icon-img {
+		width: 32rpx;
+		height: 32rpx;
+		margin-right: 10rpx;
+}
+.title-text {
+		font-size: 28rpx;
+		font-weight: 700;
+		color: #FFFFFF;
+		letter-spacing: 0.5rpx;
+		text-transform: uppercase;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+.summary-content {
+		background: rgba(255, 255, 255, 0.9);
+		border: 4rpx solid #000000;
+		border-radius: 0;
+		padding: 20rpx;
+		position: relative;
+		box-shadow: 4rpx 4rpx 0 #000000;
+		margin-top: 16rpx;
+}
+.summary-text {
+		font-size: 28rpx;
+		line-height: 1.6;
+		color: #000000;
+		display: block;
+		font-weight: 500;
+		letter-spacing: 0.5rpx;
+}
+.comments-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16rpx;
+		width: 100%;
+		box-sizing: border-box;
+}
+.comment-item {
+		background: #FFFFFF;
+		border: 4rpx solid #000000;
+		border-radius: 0;
+		padding: 20rpx;
+		transition: all 0.2s ease;
+		position: relative;
+		overflow: visible;
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		box-shadow: 4rpx 4rpx 0 #000000;
+		margin-bottom: 16rpx;
+		transform: rotate(-0.5deg);
+}
+.comment-item:nth-child(even) {
+		transform: rotate(0.5deg);
+		box-shadow: -4rpx 4rpx 0 #000000;
+}
+.comment-item:active {
+		transform: rotate(0deg) scale(0.98);
+		box-shadow: 2rpx 2rpx 0 #000000;
+}
+.comment-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12rpx;
+		padding-bottom: 8rpx;
+		border-bottom: 1rpx solid #e0e0e0;
+}
+.user-info {
+		display: flex;
+		align-items: center;
+}
+.user-avatar {
+		font-size: 28rpx;
+		margin-right: 10rpx;
+}
+.user-name {
+		font-size: 26rpx;
+		font-weight: 700;
+		color: #000000;
+		letter-spacing: 0.5rpx;
+		text-transform: uppercase;
+}
+.comment-time {
+		font-size: 22rpx;
+		color: #999;
+		font-weight: 400;
+}
+.comment-header-right {
+		display: flex;
+		align-items: center;
+		gap: 16rpx;
+}
+.comment-delete-btn {
+		padding: 6rpx 12rpx;
+		border-radius: 8rpx;
+		background: rgba(255, 71, 87, 0.1);
+		transition: all 0.3s ease;
+		cursor: pointer;
+}
+.comment-delete-btn:active {
+		background: rgba(255, 71, 87, 0.2);
+		transform: scale(0.95);
+}
+.delete-icon-img {
+		width: 24rpx;
+		height: 24rpx;
+		opacity: 0.8;
+}
+.comment-text {
+		font-size: 26rpx;
+		color: #000000;
+		line-height: 1.6;
+		display: block;
+		font-weight: 500;
+		letter-spacing: 0.3rpx;
+		margin-top: 12rpx;
+}
+.empty-comments {
+		text-align: center;
+		padding: 40rpx 32rpx;
+		background: #f9f9f9;
+		border: 1rpx dashed #d0d0d0;
+		border-radius: 12rpx;
+		position: relative;
+}
+.empty-comments::before {
+		content: '💭';
+		display: block;
+		font-size: 40rpx;
+		margin-bottom: 12rpx;
+		opacity: 0.5;
+}
+.empty-text {
+		font-size: 26rpx;
+		color: #999;
+		font-weight: 400;
+		letter-spacing: 0.2rpx;
+}
+.modal-footer {
+		background: #FFFFFF;
+		padding: 24rpx;
+		border-top: 5rpx solid #000000;
+		display: flex;
+		gap: 20rpx;
+}
+.footer-btn {
+		flex: 1;
+		height: 80rpx;
+		border: 5rpx solid #000000;
+		border-radius: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		position: relative;
+		overflow: hidden;
+		font-weight: 700;
+		letter-spacing: 1rpx;
+		text-transform: uppercase;
+}
+.footer-btn:active {
+		transform: scale(0.95);
+}
+.cancel-btn {
+		background: #FFFFFF;
+		box-shadow: 4rpx 4rpx 0 #000000;
+}
+.cancel-btn:active {
+		box-shadow: 2rpx 2rpx 0 #000000;
+}
+.cancel-btn .btn-text {
+		color: #000000;
+		font-size: 28rpx;
+		font-weight: 700;
+}
+.confirm-btn {
+		background: linear-gradient(135deg, #FF4444 0%, #FF0000 100%);
+		box-shadow: 4rpx 4rpx 0 #000000;
+		position: relative;
+		overflow: hidden;
+}
+@keyframes buttonGradient {
+0% { background-position: 0% 50%;
+}
+50% { background-position: 100% 50%;
+}
+100% { background-position: 0% 50%;
+}
+}
+.confirm-btn:active {
+		box-shadow: 2rpx 2rpx 0 #000000;
+}
+.confirm-btn .btn-text {
+		color: #FFFFFF;
+		font-size: 28rpx;
+		font-weight: 700;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+		position: relative;
+		z-index: 1;
+}
+.btn-text {
+		font-size: 28rpx;
+		font-weight: 700;
+		color: #000;
+		position: relative;
+		z-index: 1;
+}
+
+	/* 投票特效容器 */
+.vote-effects-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		z-index: 99999;  /* 提高到最高层级 */
+		overflow: visible;  /* 改为 visible，不裁剪子元素 */
+}
+
+	/* 投票特效容器 */
+.vote-effect {
+		position: fixed;
+		width: 100rpx;
+		height: 100rpx;
+		pointer-events: none;
+		z-index: 9999;
+		will-change: transform, opacity;
+		transform: translateZ(0);
+		font-size: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+}
+	
+	/* 投票特效图标 */
+.effect-icon {
+		width: 100rpx;
+		height: 100rpx;
+}
+
+	/* 左侧投票特效样式（正方） */
+.vote-effect-left {
+		animation: floatUpLeft var(--duration, 3s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+		animation-delay: var(--delay, 0s);
+}
+
+	/* 右侧投票特效样式（反方） */
+.vote-effect-right {
+		animation: floatUpRight var(--duration, 3s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+		animation-delay: var(--delay, 0s);
+}
+
+	/* 爱心特效动画 - 左侧向上飘动 */
+@keyframes floatUpLeft {
+0% {
+			opacity: 1;
+			transform: translate(0, 0) scale(1);
+}
+20% {
+			opacity: 1;
+			transform: translate(-20rpx, -150rpx) scale(1.05);
+}
+40% {
+			opacity: 0.9;
+			transform: translate(-30rpx, -300rpx) scale(1.1);
+}
+60% {
+			opacity: 0.7;
+			transform: translate(-20rpx, -450rpx) scale(1.05);
+}
+80% {
+			opacity: 0.4;
+			transform: translate(-10rpx, -600rpx) scale(1);
+}
+100% {
+			opacity: 0;
+			transform: translate(0, -750rpx) scale(0.9);
+}
+}
+
+	/* 爱心特效动画 - 右侧向上飘动 */
+@keyframes floatUpRight {
+0% {
+			opacity: 1;
+			transform: translate(0, 0) scale(1);
+}
+20% {
+			opacity: 1;
+			transform: translate(20rpx, -150rpx) scale(1.05);
+}
+40% {
+			opacity: 0.9;
+			transform: translate(30rpx, -300rpx) scale(1.1);
+}
+60% {
+			opacity: 0.7;
+			transform: translate(20rpx, -450rpx) scale(1.05);
+}
+80% {
+			opacity: 0.4;
+			transform: translate(10rpx, -600rpx) scale(1);
+}
+100% {
+			opacity: 0;
+			transform: translate(0, -750rpx) scale(0.9);
+}
+}
+	
+	/* emoji 爱心样式 */
+.emoji-heart {
+		position: absolute;
+		pointer-events: none;
+		z-index: 10000;
+		text-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+		will-change: transform, opacity;
+}
+
+	/* 增强的向上飘动动画 - 左侧（带复杂的路径和旋转） */
+@keyframes floatUpWithWobbleLeft {
+0% {
+			opacity: 1;
+			transform:
+				translate(0, 0)
+				scale(0)
+				rotate(0deg)
+				perspective(1000px)
+				rotateX(0deg)
+				rotateY(0deg);
+			filter: blur(0px) brightness(1.2);
+}
+5% {
+			opacity: 1;
+			transform:
+				translate(var(--spread-x, 0), calc(var(--spread-y, 0) * 0.5))
+				scale(1.2)
+				rotate(calc(var(--rotation, 0deg) * 0.1))
+				perspective(1000px)
+				rotateX(5deg)
+				rotateY(5deg);
+			filter: blur(0px) brightness(1.3);
+}
+20% {
+			opacity: 1;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.8), calc(var(--spread-y, 0) * 0.6))
+				scale(1.1)
+				rotate(calc(var(--rotation, 0deg) * 0.3))
+				perspective(1000px)
+				rotateX(8deg)
+				rotateY(8deg);
+			filter: blur(0px) brightness(1.2);
+}
+40% {
+			opacity: 0.95;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.5), calc(var(--spread-y, 0) * 0.2))
+				scale(1.05)
+				rotate(calc(var(--rotation, 0deg) * 0.6))
+				perspective(1000px)
+				rotateX(10deg)
+				rotateY(-5deg);
+			filter: blur(0px) brightness(1.1);
+}
+60% {
+			opacity: 0.7;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.2), calc(var(--spread-y, 0) * -0.3))
+				scale(1)
+				rotate(calc(var(--rotation, 0deg) * 0.9))
+				perspective(1000px)
+				rotateX(12deg)
+				rotateY(3deg);
+			filter: blur(1px) brightness(1);
+}
+80% {
+			opacity: 0.3;
+			transform:
+				translate(calc(var(--spread-x, 0) * -0.2), calc(var(--spread-y, 0) * -0.8))
+				scale(0.8)
+				rotate(var(--rotation, 0deg))
+				perspective(1000px)
+				rotateX(15deg)
+				rotateY(10deg);
+			filter: blur(2px) brightness(0.9);
+}
+100% {
+			opacity: 0;
+			transform:
+				translate(calc(var(--spread-x, 0) * -0.5), calc(var(--spread-y, 0) * -1.5))
+				scale(0.2)
+				rotate(calc(var(--rotation, 0deg) * 1.2))
+				perspective(1000px)
+				rotateX(20deg)
+				rotateY(15deg);
+			filter: blur(3px) brightness(0.5);
+}
+}
+	/* 增强的向上飘动动画 - 右侧（带相反的旋转） */
+@keyframes floatUpWithWobbleRight {
+0% {
+			opacity: 1;
+			transform:
+				translate(0, 0)
+				scale(0)
+				rotate(0deg)
+				perspective(1000px)
+				rotateX(0deg)
+				rotateY(0deg);
+			filter: blur(0px) brightness(1.2);
+}
+5% {
+			opacity: 1;
+			transform:
+				translate(var(--spread-x, 0), calc(var(--spread-y, 0) * 0.5))
+				scale(1.2)
+				rotate(calc(var(--rotation, 0deg) * 0.1))
+				perspective(1000px)
+				rotateX(5deg)
+				rotateY(-5deg);
+			filter: blur(0px) brightness(1.3);
+}
+20% {
+			opacity: 1;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.8), calc(var(--spread-y, 0) * 0.6))
+				scale(1.1)
+				rotate(calc(var(--rotation, 0deg) * 0.3))
+				perspective(1000px)
+				rotateX(8deg)
+				rotateY(-8deg);
+			filter: blur(0px) brightness(1.2);
+}
+40% {
+			opacity: 0.95;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.5), calc(var(--spread-y, 0) * 0.2))
+				scale(1.05)
+				rotate(calc(var(--rotation, 0deg) * 0.6))
+				perspective(1000px)
+				rotateX(10deg)
+				rotateY(5deg);
+			filter: blur(0px) brightness(1.1);
+}
+60% {
+			opacity: 0.7;
+			transform:
+				translate(calc(var(--spread-x, 0) * 0.2), calc(var(--spread-y, 0) * -0.3))
+				scale(1)
+				rotate(calc(var(--rotation, 0deg) * 0.9))
+				perspective(1000px)
+				rotateX(12deg)
+				rotateY(-3deg);
+			filter: blur(1px) brightness(1);
+}
+80% {
+			opacity: 0.3;
+			transform:
+				translate(calc(var(--spread-x, 0) * -0.2), calc(var(--spread-y, 0) * -0.8))
+				scale(0.8)
+				rotate(var(--rotation, 0deg))
+				perspective(1000px)
+				rotateX(15deg)
+				rotateY(-10deg);
+			filter: blur(2px) brightness(0.9);
+}
+100% {
+			opacity: 0;
+			transform:
+				translate(calc(var(--spread-x, 0) * -0.5), calc(var(--spread-y, 0) * -1.5))
+				scale(0.2)
+				rotate(calc(var(--rotation, 0deg) * 1.2))
+				perspective(1000px)
+				rotateX(20deg)
+				rotateY(-15deg);
+			filter: blur(3px) brightness(0.5);
+}
+}
+
+	/* 增强特效符号的视觉效果 */
+.effect-symbol::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 60rpx;
+		height: 60rpx;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+		animation: glowPulse 4s ease-out forwards;
+		pointer-events: none;
+}
+@keyframes glowPulse {
+0% {
+			opacity: 0.8;
+			transform: translate(-50%, -50%) scale(0.5);
+}
+50% {
+			opacity: 0.6;
+			transform: translate(-50%, -50%) scale(1.2);
+}
+100% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(2);
+}
+}
+
+	/* 正方特效发光效果 */
+.effect-left::before {
+		background: radial-gradient(circle, rgba(255, 20, 147, 0.4) 0%, transparent 70%);
+}
+
+	/* 反方特效发光效果 */
+.effect-right::before {
+		background: radial-gradient(circle, rgba(0, 191, 255, 0.4) 0%, transparent 70%);
+}
+
+	/* 预设观点显示 - 紧凑版本 */
+.preset-section {
+		background: linear-gradient(135deg, #FFEB3B 0%, #FFD700 100%);
+		border: 6rpx solid #000;
+		border-radius: 0;
+		padding: 20rpx;
+		margin-bottom: 8rpx;
+		box-shadow: 10rpx 10rpx 0 #000;
+		opacity: 1 !important;
+		position: relative;
+		z-index: 10;
+		display: flex;
+		flex-direction: column;
+}
+.preset-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 8rpx;
+		position: relative;
+}
+.preset-title {
+		font-size: 28rpx;
+		font-weight: 900;
+		color: #000;
+		display: flex;
+		align-items: center;
+		gap: 4rpx;
+		letter-spacing: 2rpx;
+}
+.preset-subtitle {
+		font-size: 18rpx;
+		color: #666;
+		display: block;
+		line-height: 1.3;
+		margin-bottom: 6rpx;
+}
+	
+	/* 辩题显示 - 紧凑版本 */
+.preset-debate-topic {
+		margin-bottom: 8rpx;
+		padding: 6rpx 8rpx;
+		background: linear-gradient(135deg, rgba(255, 20, 147, 0.08) 0%, rgba(255, 140, 0, 0.08) 100%);
+		border-radius: 6rpx;
+		border: 1rpx solid rgba(255, 20, 147, 0.2);
+}
+.debate-topic-text {
+		font-size: 20rpx;
+		color: #333;
+		font-weight: 600;
+		line-height: 1.4;
+		display: block;
+		text-align: center;
+}
+.preset-slider-container {
+		margin-bottom: 8rpx;
+}
+.slider-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 6rpx;
+}
+.slider-label {
+		font-size: 18rpx;
+		font-weight: bold;
+		color: #333;
+}
+.left-label {
+		color: #FF1493;
+}
+.right-label {
+		color: #00BFFF;
+}
+.slider-wrapper {
+		margin: 6rpx 0;
+		padding: 0 8rpx;
+}
+.preset-slider {
+		width: 100%;
+}
+.preset-info-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: 8rpx;
+		gap: 12rpx;
+}
+.preset-info {
+		text-align: center;
+		flex: 1;
+}
+.preset-info-row {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8rpx;
+}
+.preset-percentage {
+		font-size: 32rpx;
+		font-weight: 900;
+		color: #FF0000;
+		display: inline-block;
+		text-shadow: 2rpx 2rpx 0 #000;
+}
+.preset-desc {
+		font-size: 20rpx;
+		color: #000;
+		display: inline-block;
+		font-weight: 700;
+}
+	
+	/* 预设观点面板关闭按钮样式 */
+.preset-close-btn {
+		width: 32rpx;
+		height: 32rpx;
+		background-color: #FF6B6B;
+		border: 2rpx solid #000;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 2rpx 6rpx rgba(255, 107, 107, 0.3);
+		transition: all 0.3s ease;
+		flex-shrink: 0;
+}
+.preset-close-btn:active {
+		transform: scale(0.95);
+		background-color: #FF5252;
+}
+.close-icon {
+		font-size: 16rpx;
+		color: #FFFFFF;
+		font-weight: bold;
+}
+	
+	/* 预设观点票数信息显示 */
+.preset-votes-info {
+		margin-top: 6rpx;
+		padding: 6rpx 8rpx;
+		background: linear-gradient(135deg, rgba(255, 214, 61, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+		border-radius: 6rpx;
+		border: 1rpx solid #FFD93D;
+}
+.preset-votes-text {
+		font-size: 18rpx;
+		font-weight: bold;
+		color: #FF1493;
+		display: block;
+		margin-bottom: 3rpx;
+}
+.preset-votes-detail {
+		font-size: 16rpx;
+		color: #666;
+		display: block;
+		line-height: 1.3;
+}
+	
+	/* 预设观点确定按钮容器 - 与文字并列 */
+.preset-confirm-btn-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-shrink: 0;
+}
+.preset-confirm-btn {
+		background: linear-gradient(135deg, #FF4444 0%, #FF0000 100%);
+		border: 3rpx solid #000;
+		width: 48rpx;
+		height: 48rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 4rpx 4rpx 0 #000;
+		transition: all 0.3s ease;
+		border-radius: 0;
+}
+.preset-confirm-btn:active {
+		transform: translateY(2rpx) scale(0.95);
+		box-shadow: 2rpx 2rpx 0 #000;
+}
+.confirm-btn-text {
+		font-size: 28rpx;
+		font-weight: 900;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 0 rgba(0, 0, 0, 0.5);
+		line-height: 1;
+}
+	
+	/* 预设观点缩小按钮行 */
+.preset-mini-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1rpx 2rpx;
+		margin: 0 0 4rpx 0;
+}
+
+	/* 激励标语样式 */
+.vote-message-text {
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #555;
+		letter-spacing: 1rpx;
+		flex: 1;
+		text-align: left;
+		position: relative;
+		padding-left: 10rpx;
+		border-left: 3rpx solid rgba(255, 107, 157, 0.6);
+}
+
+	/* 预设观点缩小按钮样式 */
+.preset-mini-button {
+		background: linear-gradient(135deg, #FF1493 0%, #FF69B4 50%, #FFB6C1 100%);
+		border: 3rpx solid #000;
+		border-radius: 50%;
+		width: 70rpx;
+		height: 70rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 8rpx;
+		box-shadow: 0 6rpx 16rpx rgba(255, 20, 147, 0.4), 
+		            0 3rpx 6rpx rgba(255, 20, 147, 0.2),
+		            inset 0 1rpx 3rpx rgba(255, 255, 255, 0.3);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		position: relative;
+		overflow: hidden;
+		align-self: flex-end;
+		margin-left: auto;
+		margin-right: 0;
+}
+.preset-mini-button::before {
+		content: '';
+		position: absolute;
+		top: -50%;
+		left: -50%;
+		width: 200%;
+		height: 200%;
+		background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		transform: rotate(45deg);
+		transition: all 0.6s ease;
+		opacity: 0;
+}
+.preset-mini-button:hover::before {
+		opacity: 1;
+		animation: shimmer 1.5s ease-in-out;
+}
+@keyframes shimmer {
+0% { transform: translateX(-100%) translateY(-100%) rotate(45deg);
+}
+100% { transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+}
+.preset-mini-button:active {
+		transform: scale(0.92);
+		box-shadow: 0 4rpx 12rpx rgba(255, 20, 147, 0.5), 
+		            0 2rpx 4rpx rgba(255, 20, 147, 0.3),
+		            inset 0 1rpx 2rpx rgba(0, 0, 0, 0.1);
+}
+.mini-button-value {
+		font-size: 22rpx;
+		font-weight: 900;
+		color: #FFFFFF;
+		text-align: center;
+		text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
+		letter-spacing: 0.5rpx;
+		position: relative;
+		z-index: 1;
+		transition: all 0.3s ease;
+}
+	
+	/* 数值变化时的炫酷动画效果 */
+.preset-mini-button.value-changing {
+		transform: scale(1.2) rotate(5deg);
+		box-shadow: 0 8rpx 25rpx rgba(255, 20, 147, 0.6), 
+		            0 4rpx 12rpx rgba(255, 20, 147, 0.4),
+		            inset 0 2rpx 6rpx rgba(255, 255, 255, 0.4);
+		animation: buttonPulse 0.6s ease-in-out;
+}
+.mini-button-value.value-animate {
+		animation: valueShake 0.6s ease-in-out;
+		color: #FFD700;
+		text-shadow: 0 0 10rpx rgba(255, 215, 0, 0.8), 
+		             0 2rpx 4rpx rgba(0, 0, 0, 0.5);
+		transform: scale(1.1);
+}
+@keyframes buttonPulse {
+0% { 
+			transform: scale(1) rotate(0deg);
+			box-shadow: 0 6rpx 16rpx rgba(255, 20, 147, 0.4), 
+			            0 3rpx 6rpx rgba(255, 20, 147, 0.2),
+			            inset 0 1rpx 3rpx rgba(255, 255, 255, 0.3);
+}
+25% { 
+			transform: scale(1.15) rotate(2deg);
+			box-shadow: 0 10rpx 30rpx rgba(255, 20, 147, 0.7), 
+			            0 5rpx 15rpx rgba(255, 20, 147, 0.5),
+			            inset 0 2rpx 8rpx rgba(255, 255, 255, 0.5);
+}
+50% { 
+			transform: scale(1.2) rotate(5deg);
+			box-shadow: 0 12rpx 35rpx rgba(255, 20, 147, 0.8), 
+			            0 6rpx 18rpx rgba(255, 20, 147, 0.6),
+			            inset 0 3rpx 10rpx rgba(255, 255, 255, 0.6);
+}
+75% { 
+			transform: scale(1.1) rotate(3deg);
+			box-shadow: 0 8rpx 25rpx rgba(255, 20, 147, 0.6), 
+			            0 4rpx 12rpx rgba(255, 20, 147, 0.4),
+			            inset 0 2rpx 6rpx rgba(255, 255, 255, 0.4);
+}
+100% { 
+			transform: scale(1) rotate(0deg);
+			box-shadow: 0 6rpx 16rpx rgba(255, 20, 147, 0.4), 
+			            0 3rpx 6rpx rgba(255, 20, 147, 0.2),
+			            inset 0 1rpx 3rpx rgba(255, 255, 255, 0.3);
+}
+}
+@keyframes valueShake {
+0% { 
+			transform: scale(1) translateX(0);
+			color: #FFFFFF;
+			text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
+}
+10% { 
+			transform: scale(1.1) translateX(-2rpx);
+			color: #FFD700;
+			text-shadow: 0 0 8rpx rgba(255, 215, 0, 0.6);
+}
+20% { 
+			transform: scale(1.15) translateX(2rpx);
+			color: #FFA500;
+			text-shadow: 0 0 12rpx rgba(255, 165, 0, 0.8);
+}
+30% { 
+			transform: scale(1.2) translateX(-1rpx);
+			color: #FFD700;
+			text-shadow: 0 0 15rpx rgba(255, 215, 0, 1);
+}
+40% { 
+			transform: scale(1.15) translateX(1rpx);
+			color: #FFA500;
+			text-shadow: 0 0 12rpx rgba(255, 165, 0, 0.8);
+}
+50% { 
+			transform: scale(1.1) translateX(0);
+			color: #FFD700;
+			text-shadow: 0 0 10rpx rgba(255, 215, 0, 0.8);
+}
+60% { 
+			transform: scale(1.05) translateX(-1rpx);
+			color: #FFA500;
+			text-shadow: 0 0 8rpx rgba(255, 165, 0, 0.6);
+}
+70% { 
+			transform: scale(1.02) translateX(1rpx);
+			color: #FFD700;
+			text-shadow: 0 0 6rpx rgba(255, 215, 0, 0.4);
+}
+80% { 
+			transform: scale(1.01) translateX(0);
+			color: #FFA500;
+			text-shadow: 0 0 4rpx rgba(255, 165, 0, 0.3);
+}
+90% { 
+			transform: scale(1.005) translateX(0);
+			color: #FFD700;
+			text-shadow: 0 0 2rpx rgba(255, 215, 0, 0.2);
+}
+100% { 
+			transform: scale(1) translateX(0);
+			color: #FFFFFF;
+			text-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.3);
+}
+}
+.start-live-btn {
+		background: linear-gradient(135deg, #FF1493, #FF69B4);
+		border: 4rpx solid #000;
+		border-radius: 25rpx;
+		padding: 20rpx;
+		text-align: center;
+		box-shadow: 0 6rpx 16rpx rgba(255, 20, 147, 0.3);
+		transition: all 0.3s ease;
+}
+.start-live-btn:active {
+		transform: scale(0.98);
+		box-shadow: 0 4rpx 12rpx rgba(255, 20, 147, 0.4);
+}
+.start-btn-text {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.3);
+}
+
+
+
+	/* 对抗条百分数样式 */
+.battle-percentage {
+		display: block;
+		font-size: 28rpx;
+		font-weight: 900;
+		color: #FFFFFF;
+		text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.8);
+}
+.battle-info {
+		display: block;
+		font-size: 20rpx;
+		font-weight: bold;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.8);
+}
+
+	/* 评论弹窗样式 */
+.comment-modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 10000;
+		-webkit-backdrop-filter: blur(8rpx);
+		        backdrop-filter: blur(8rpx);
+		animation: commentModalFadeIn 0.3s ease-out;
+}
+@keyframes commentModalFadeIn {
+0% {
+			opacity: 0;
+			-webkit-backdrop-filter: blur(0rpx);
+			        backdrop-filter: blur(0rpx);
+}
+100% {
+			opacity: 1;
+			-webkit-backdrop-filter: blur(8rpx);
+			        backdrop-filter: blur(8rpx);
+}
+}
+.comment-modal {
+		width: 90%;
+		max-width: 600rpx;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+		border-radius: 0;
+		border: 6rpx solid #000000;
+		box-shadow: 
+			12rpx 12rpx 0 #9B6ED8,
+			-12rpx -12rpx 0 #6BA3FF,
+			0 0 40rpx rgba(217, 70, 143, 0.4);
+		overflow: hidden;
+		animation: commentModalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		position: relative;
+		transform: rotate(1deg);
+}
+@keyframes commentModalSlideIn {
+0% {
+			opacity: 0;
+			transform: translateY(60rpx) scale(0.9) rotate(1deg);
+}
+100% {
+			opacity: 1;
+			transform: translateY(0) scale(1) rotate(1deg);
+}
+}
+.comment-modal-header {
+		background: linear-gradient(135deg, #9B6ED8 0%, #6BA3FF 100%);
+		padding: 32rpx 36rpx;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: relative;
+		overflow: hidden;
+		border-bottom: 5rpx solid #000000;
+		box-shadow: 0 6rpx 0 #000000;
+}
+.comment-modal-title {
+		font-size: 36rpx;
+		font-weight: 700;
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+		letter-spacing: 1rpx;
+		text-transform: uppercase;
+		position: relative;
+		z-index: 1;
+}
+.comment-close-btn {
+		width: 48rpx;
+		height: 48rpx;
+		background: #000000;
+		border-radius: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s ease;
+		border: 4rpx solid #FFFFFF;
+		box-shadow: 4rpx 4rpx 0 #FFFFFF;
+		position: relative;
+		z-index: 1;
+}
+.comment-close-btn:active {
+		transform: scale(0.9);
+		box-shadow: 2rpx 2rpx 0 #FFFFFF;
+}
+.comment-close-icon {
+		font-size: 28rpx;
+		color: #FFFFFF;
+		font-weight: 900;
+		text-shadow: 1rpx 1rpx 0 #000000;
+}
+.comment-modal-content {
+		padding: 36rpx;
+		background: #FFFFFF;
+		position: relative;
+		z-index: 1;
+}
+.comment-input-container {
+		position: relative;
+}
+.comment-textarea {
+		width: 100%;
+		min-height: 200rpx;
+		padding: 24rpx 28rpx;
+		background: #FFFFFF;
+		border: 5rpx solid #000000;
+		border-radius: 0;
+		font-size: 30rpx;
+		line-height: 1.6;
+		color: #000000;
+		box-sizing: border-box;
+		transition: all 0.2s ease;
+		box-shadow: 4rpx 4rpx 0 #000000;
+		resize: none;
+}
+.comment-textarea:focus {
+		border-color: #D9468F;
+		box-shadow: 4rpx 4rpx 0 #D9468F;
+		outline: none;
+}
+.comment-textarea::-webkit-input-placeholder {
+		color: #adb5bd;
+		font-weight: 400;
+}
+.comment-textarea::placeholder {
+		color: #adb5bd;
+		font-weight: 400;
+}
+.comment-char-count {
+		position: absolute;
+		bottom: 16rpx;
+		right: 20rpx;
+		background: #000000;
+		padding: 8rpx 12rpx;
+		border-radius: 0;
+		border: 3rpx solid #FFFFFF;
+		box-shadow: 3rpx 3rpx 0 #FFFFFF;
+}
+.char-count-text {
+		font-size: 22rpx;
+		color: #FFFFFF;
+		font-weight: 700;
+}
+.comment-modal-footer {
+		padding: 24rpx 36rpx 36rpx;
+		display: flex;
+		gap: 20rpx;
+		background: #FFFFFF;
+		border-top: 5rpx solid #000000;
+		position: relative;
+		z-index: 1;
+}
+.comment-footer-btn {
+		flex: 1;
+		height: 88rpx;
+		border-radius: 0;
+		border: 5rpx solid #000000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		position: relative;
+		overflow: hidden;
+		font-weight: 700;
+		letter-spacing: 1rpx;
+		text-transform: uppercase;
+}
+.comment-cancel-btn {
+		background: #FFFFFF;
+		box-shadow: 4rpx 4rpx 0 #000000;
+}
+.comment-cancel-btn:active {
+		transform: scale(0.95);
+		box-shadow: 2rpx 2rpx 0 #000000;
+}
+.comment-confirm-btn {
+		background: linear-gradient(135deg, #D9468F 0%, #FFD93D 50%, #5ED4B3 100%);
+		background-size: 200% 200%;
+		animation: buttonGradient 3s ease infinite;
+		box-shadow: 4rpx 4rpx 0 #000000;
+}
+.comment-confirm-btn:active {
+		transform: scale(0.95);
+		box-shadow: 2rpx 2rpx 0 #000000;
+}
+.comment-confirm-btn.disabled {
+		background: #666666;
+		box-shadow: 4rpx 4rpx 0 #000000;
+		opacity: 0.7;
+		animation: none;
+}
+.comment-confirm-btn.disabled:active {
+		transform: none;
+}
+.comment-btn-text {
+		font-size: 32rpx;
+		font-weight: 700;
+		letter-spacing: 1rpx;
+		position: relative;
+		z-index: 1;
+}
+.comment-cancel-btn .comment-btn-text {
+		color: #000000;
+}
+.comment-confirm-btn .comment-btn-text {
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+.comment-confirm-btn.disabled .comment-btn-text {
+		color: #FFFFFF;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+
+	/* 调整对抗条文字布局 */
+.battle-text {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding: 0 15rpx;
+		gap: 8rpx;
+		flex-wrap: wrap;
+}
+.left-text {
+		text-align: center;
+}
+.right-text {
+		text-align: center;
+}
+
+	/* 直播状态指示器 */
+.live-status-indicator {
+		position: absolute;
+		top: 10rpx;
+		right: 10rpx;
+		background-color: rgba(255, 0, 0, 0.8);
+		color: #FFFFFF;
+		padding: 5rpx 10rpx;
+		border-radius: 10rpx;
+		font-size: 20rpx;
+		font-weight: bold;
+		z-index: 10;
+}
+.live-status-indicator.live {
+		background-color: rgba(0, 255, 0, 0.8);
+		animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { opacity: 1;
+}
+50% { opacity: 0.5;
+}
+100% { opacity: 1;
+}
+}
+
+	/* 百分数变化提示样式 */
+.percentage-change-tip {
+		position: absolute;
+		top: -60rpx;
+		left: 50%;
+		transform: translateX(-50%);
+		background-color: rgba(0, 0, 0, 0.8);
+		color: #FFFFFF;
+		padding: 10rpx 20rpx;
+		border-radius: 20rpx;
+		font-size: 24rpx;
+		font-weight: bold;
+		z-index: 100;
+		animation: tipFadeInOut 2s ease-in-out;
+		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+.tip-left {
+		background-color: rgba(255, 20, 147, 0.9);
+		border: 2rpx solid #FF1493;
+}
+.tip-right {
+		background-color: rgba(0, 191, 255, 0.9);
+		border: 2rpx solid #00BFFF;
+}
+.tip-text {
+		display: block;
+		text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+@keyframes tipFadeInOut {
+0% {
+			opacity: 0;
+			transform: translateX(-50%) translateY(10rpx) scale(0.8);
+}
+20% {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0) scale(1);
+}
+80% {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0) scale(1);
+}
+100% {
+			opacity: 0;
+			transform: translateX(-50%) translateY(-10rpx) scale(0.8);
+}
+}
+
+	/* ===== 搞怪装饰元素 - 不是AI生成的感觉 ===== */
+
+	/* 浮动的趣味装饰元素 */
+.playful-decoration {
+		position: absolute;
+		font-size: 80rpx;
+		opacity: 0.15;
+		pointer-events: none;
+		z-index: 0;
+		animation: playfulBounce 4s ease-in-out infinite;
+		filter: drop-shadow(0 4rpx 12rpx rgba(255, 100, 150, 0.2));
+}
+.decoration-1 {
+		top: 5%;
+		right: 10%;
+		animation-delay: 0s;
+		animation-duration: 5s;
+}
+.decoration-2 {
+		top: 25%;
+		left: 5%;
+		animation-delay: 1s;
+		animation-duration: 6s;
+}
+.decoration-3 {
+		bottom: 15%;
+		right: 15%;
+		animation-delay: 2s;
+		animation-duration: 4.5s;
+}
+.decoration-4 {
+		bottom: 30%;
+		left: 10%;
+		animation-delay: 1.5s;
+		animation-duration: 5.5s;
+}
+@keyframes playfulBounce {
+0%, 100% {
+			transform: translateY(0) rotate(0deg) scale(1);
+}
+25% {
+			transform: translateY(-20rpx) rotate(5deg) scale(1.08);
+}
+50% {
+			transform: translateY(-35rpx) rotate(-3deg) scale(0.95);
+}
+75% {
+			transform: translateY(-15rpx) rotate(4deg) scale(1.05);
+}
+}
+
+	/* 不规则的纹理背景装饰 */
+.texture-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-image:
+			repeating-linear-gradient(
+				45deg,
+				transparent,
+				transparent 100rpx,
+				rgba(255, 255, 255, 0.02) 100rpx,
+				rgba(255, 255, 255, 0.02) 101rpx
+			),
+			repeating-linear-gradient(
+				-45deg,
+				transparent,
+				transparent 80rpx,
+				rgba(0, 0, 0, 0.01) 80rpx,
+				rgba(0, 0, 0, 0.01) 81rpx
+			);
+		pointer-events: none;
+		z-index: 0;
+}
+
+	/* 搞怪的不规则动画框 */
+.quirky-frame {
+		position: relative;
+		border: 3rpx dashed rgba(255, 100, 150, 0.3);
+		border-radius: 20rpx;
+		padding: 2rpx;
+		animation: quirkyTilt 6s ease-in-out infinite;
+}
+@keyframes quirkyTilt {
+0% {
+			transform: rotate(-0.5deg);
+			border-color: rgba(255, 100, 150, 0.3);
+}
+25% {
+			transform: rotate(0.3deg);
+			border-color: rgba(0, 180, 220, 0.25);
+}
+50% {
+			transform: rotate(-0.2deg);
+			border-color: rgba(255, 100, 150, 0.35);
+}
+75% {
+			transform: rotate(0.4deg);
+			border-color: rgba(100, 200, 255, 0.2);
+}
+100% {
+			transform: rotate(-0.5deg);
+			border-color: rgba(255, 100, 150, 0.3);
+}
+}
+
+	/* 闪烁的光点装饰 */
+.glitch-sparkle {
+		position: absolute;
+		width: 2rpx;
+		height: 2rpx;
+		background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 100, 150, 0.3));
+		border-radius: 50%;
+		pointer-events: none;
+		animation: sparkleFlash 2s infinite;
+}
+.sparkle-1 {
+		top: 15%;
+		right: 20%;
+		animation-delay: 0s;
+}
+.sparkle-2 {
+		top: 45%;
+		left: 15%;
+		animation-delay: 0.5s;
+}
+.sparkle-3 {
+		bottom: 20%;
+		right: 25%;
+		animation-delay: 1s;
+}
+@keyframes sparkleFlash {
+0%, 100% {
+			opacity: 0;
+			transform: scale(0);
+}
+50% {
+			opacity: 1;
+			transform: scale(1);
+}
+}
+
+	/* 波浪纹理效果 - 增加有机感 */
+.wave-texture {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		background:
+			radial-gradient(ellipse 200rpx 150rpx at 20% 50%, rgba(255, 100, 150, 0.05), transparent),
+			radial-gradient(ellipse 250rpx 200rpx at 80% 50%, rgba(0, 180, 220, 0.04), transparent);
+		pointer-events: none;
+		animation: waveShift 12s ease-in-out infinite;
+}
+@keyframes waveShift {
+0%, 100% {
+			filter: blur(2rpx);
+}
+50% {
+			filter: blur(3rpx);
+}
+}
+
+	/* 卡片的不规则边框效果 */
+.irregular-border {
+		position: relative;
+		border-radius: 32rpx 12rpx 28rpx 18rpx;
+		overflow: hidden;
+		animation: borderShift 8s ease-in-out infinite;
+}
+@keyframes borderShift {
+0% {
+			border-radius: 32rpx 12rpx 28rpx 18rpx;
+}
+25% {
+			border-radius: 28rpx 14rpx 32rpx 20rpx;
+}
+50% {
+			border-radius: 30rpx 16rpx 26rpx 22rpx;
+}
+75% {
+			border-radius: 26rpx 18rpx 30rpx 16rpx;
+}
+100% {
+			border-radius: 32rpx 12rpx 28rpx 18rpx;
+}
+}
+
+	/* 微妙的抖动效果 - 更生动 */
+.subtle-wiggle {
+		animation: subtleWiggle 0.4s ease-in-out infinite;
+}
+@keyframes subtleWiggle {
+0%, 100% {
+			transform: translateX(0) rotate(0deg);
+}
+25% {
+			transform: translateX(1rpx) rotate(0.2deg);
+}
+50% {
+			transform: translateX(-1rpx) rotate(-0.2deg);
+}
+75% {
+			transform: translateX(0.5rpx) rotate(0.1deg);
+}
+}
+
+	/* 脉冲发光效果 - 视觉引导 */
+.pulse-glow {
+		animation: pulseGlowEffect 3s ease-in-out infinite;
+}
+@keyframes pulseGlowEffect {
+0%, 100% {
+			box-shadow: 0 0 20rpx rgba(255, 100, 150, 0.3);
+}
+50% {
+			box-shadow: 0 0 40rpx rgba(0, 180, 220, 0.4);
+}
+}
+
+	/* 随机动画错误感（故意的） */
+.glitchy-text {
+		animation: glitchyShake 0.15s infinite;
+}
+@keyframes glitchyShake {
+0% {
+			text-shadow: -2rpx 0 #FF1493, 2rpx 0 #00BFFF;
+			transform: translateX(0);
+}
+20% {
+			text-shadow: -2rpx 0 #FF1493, 2rpx 0 #00BFFF;
+			transform: translateX(-1rpx);
+}
+40% {
+			text-shadow: 2rpx 0 #FF1493, -2rpx 0 #00BFFF;
+			transform: translateX(1rpx);
+}
+60% {
+			text-shadow: -2rpx 0 #00BFFF, 2rpx 0 #FF1493;
+			transform: translateX(-1rpx);
+}
+80% {
+			text-shadow: 2rpx 0 #00BFFF, -2rpx 0 #FF1493;
+			transform: translateX(1rpx);
+}
+100% {
+			text-shadow: -2rpx 0 #FF1493, 2rpx 0 #00BFFF;
+			transform: translateX(0);
+}
+}
+
+	/* 3D 透视变换 - 增加空间感 */
+.perspective-tilt {
+		perspective: 1000rpx;
+		animation: perspectiveTilt 6s ease-in-out infinite;
+}
+@keyframes perspectiveTilt {
+0%, 100% {
+			transform: rotateX(0deg) rotateY(0deg);
+}
+25% {
+			transform: rotateX(2deg) rotateY(-3deg);
+}
+50% {
+			transform: rotateX(-2deg) rotateY(3deg);
+}
+75% {
+			transform: rotateX(1deg) rotateY(-2deg);
+}
+}
+
