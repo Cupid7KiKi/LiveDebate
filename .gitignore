@@ -1,0 +1,22 @@
+# Go 后端
+backend/server
+backend/*.db
+backend/*.sqlite
+backend/logs/
+
+# Node 网关
+live-gateway/node_modules/
+live-gateway/logs/
+live-gateway/*.log
+
+# 前端
+froneted/node_modules/
+froneted/unpackage/
+froneted/.hbuilderx/
+
+# 系统
+.DS_Store
+.idea/
+.vscode/
+*.log
+tmp/
